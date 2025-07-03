@@ -58,30 +58,49 @@ export default function ItemList() {
     );
 }
 const Item = ({ item }) => {
+    const truncateTitle = (title) => {
+        if (title.length > 14) {
+            return title.substring(0, 14) + '...';
+        }
+        return title;
+    };
     return (
         <div className='flex flex-col bg-base-100 shadow-sm'>
-            <div className='h-3/12'>
+            <div className='h-[150px]'>
                 <img
                     src={item.imgs[0].resized}
                     loading='lazy'
-                    className='min-w-full h-[200px] object-cover object-center rounded-t-lg' /* ⭐️ `min-h` 제거, `w-full h-full` 적용 */
+                    className='min-w-full h-full object-cover object-center rounded-t-lg' /* ⭐️ `min-h` 제거, `w-full h-full` 적용 */
                 />
             </div>
 
-            <div className='flex flex-col p-2'>
-                <h2 className='text-xl'>{item.title}</h2>
-                <div className='flex'>
-                    <p>{item.sell}</p>
-                    <p>{item.want}</p>
+            <div className='flex flex-col max-h-44 p-4 gap-1'>
+                <h2 className='font-semibold text-md'>
+                    {truncateTitle(item.title)}
+                </h2>
+                <div className='flex gap-2 text-xs font-semibold text-white mb-4'>
+                    <div className='py-1 px-2 rounded-full bg-red-400'>
+                        {item.sell}
+                    </div>
+                    <div className='py-1 px-2 rounded-full bg-blue-400'>
+                        {item.want}
+                    </div>
                 </div>
-                <p className='text-lg font-bold'>${item.price}</p>
-                <p>
-                    {item.opened === 0 ? (
-                        <span className='text-red-500'>개봉</span>
-                    ) : (
-                        <span className='text-green-500'>미개봉</span>
-                    )}
-                </p>
+                <div className='flex justify-between'>
+                    <p className='text-lg font-bold'>${item.price}</p>
+                    <p>
+                        {item.opened === 0 ? (
+                            <span className='text-red-500 font-semibold text-sm'>
+                                개봉
+                            </span>
+                        ) : (
+                            <span className='text-green-500 font-semibold text-sm'>
+                                미개봉
+                            </span>
+                        )}
+                    </p>
+                </div>
+
                 <div className='flex justify-end'>
                     <button className='btn btn-primary btn-sm'>찜</button>
                 </div>
