@@ -1,8 +1,7 @@
 import React from 'react';
 import UserInfoCard from './UserInfoCard';
 import AuthButton from './AuthButton';
-import { NavLink } from 'react-router';
-import { Link } from 'react-router';
+import { NavLink, Link } from 'react-router-dom';
 
 export default function Header() {
     return (

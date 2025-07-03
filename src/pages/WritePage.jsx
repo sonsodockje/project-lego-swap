@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../api/firebaseAuth';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import WriteForm from '../components/WriteForm';
 
 export default function WritePage() {

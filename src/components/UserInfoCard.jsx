@@ -1,5 +1,5 @@
 import { useAuth } from '../api/firebaseAuth';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 export default function UserInfoCard() {
     const { currentUser, isLogin } = useAuth();
