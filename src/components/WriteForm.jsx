@@ -5,7 +5,43 @@ import { useNavigate } from 'react-router';
 
 const MAX_IMAGES = 4;
 
-const handleImageSelection = (
+const resizeImage = (file) => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const MAX_DIMENSION = 500;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                    if (width > height) {
+                        height = Math.round((height * MAX_DIMENSION) / width);
+                        width = MAX_DIMENSION;
+                    } else {
+                        width = Math.round((width * MAX_DIMENSION) / height);
+                        height = MAX_DIMENSION;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, file.type);
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+};
+
+const handleImageSelection = async (
     e,
     selectedFiles,
     setPreviewImgUrls,
@@ -15,6 +51,7 @@ const handleImageSelection = (
     const imageFiles = newlySelectedFiles.filter((item) =>
         item.type.startsWith('image/'),
     );
+
     if (selectedFiles.length + imageFiles.length > MAX_IMAGES) {
         alert(
             `사진은 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다. 이미지가 너무 많습니다.`,
@@ -23,16 +60,32 @@ const handleImageSelection = (
         return;
     }
 
-    const newPreviewUrls = imageFiles.map((item) => URL.createObjectURL(item));
+    const processedFiles = await Promise.all(
+        imageFiles.map(async (file) => {
+            const resizedBlob = await resizeImage(file);
+            // Blob에 원본 파일의 이름을 부여하여 Firebase Storage에서 사용할 수 있도록 합니다.
+            // Blob은 name 속성이 없으므로, File 객체로 변환하거나, Blob과 이름을 함께 전달해야 합니다.
+            // 여기서는 Blob에 name 속성을 추가하여 File 객체처럼 보이게 합니다.
+            return new File([resizedBlob], file.name, { type: resizedBlob.type });
+        }),
+    );
+
+    const newPreviewUrls = imageFiles.map((file) => URL.createObjectURL(file)); // 미리보기는 원본 이미지로
     setPreviewImgUrls((prevUrls) => [...prevUrls, ...newPreviewUrls]);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...imageFiles]);
+    setSelectedFiles((prevFiles) => [
+        ...prevFiles,
+        ...imageFiles.map((originalFile, index) => ({
+            original: originalFile,
+            resized: processedFiles[index], // 이미 리사이징된 Blob (File 객체로 변환됨)
+        })),
+    ]);
 
     e.target.value = '';
 };
 
 const handleRemoveImage = (
     indexToRemove,
-    previewImgUrls,
+previewImgUrls,
     setPreviewImgUrls,
     setSelectedFiles,
 ) => {
@@ -83,9 +136,16 @@ export default function WriteForm({ currentUser }) {
         setIsLoading(true);
         try {
             const uploadedUrls = await Promise.all(
-                selectedFiles.map(async (file) => {
-                    const downloadURL = await uploadProductImage(file);
-                    return downloadURL;
+                selectedFiles.map(async (filePair) => {
+                    const originalURL = await uploadProductImage(
+                        filePair.original,
+                        'products/imgs/original/',
+                    );
+                    const resizedURL = await uploadProductImage(
+                        filePair.resized,
+                        'products/imgs/resized/',
+                    );
+                    return { original: originalURL, resized: resizedURL };
                 }),
             );
             const finalFormData = {

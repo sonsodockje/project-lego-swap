@@ -52,19 +52,15 @@ export const productsFetch = async () => {
   }
 };
 
-export const productFetchById = async (id, setIsLoading) => {
+export const productFetchById = async (id) => {
   const docRef = doc(db, 'products', id);
   const docSnap = await getDoc(docRef);
 
-  try {
-    if (docSnap.exists()) {
-      console.log('Document data:', docSnap.data());
-      return docSnap.data();
-    } else {
-      // docSnap.data() will be undefined in this case
-      console.log('No such document!');
-    }
-  } finally {
-    setIsLoading(false);
+  if (docSnap.exists()) {
+    console.log('Document data:', docSnap.data());
+    return docSnap.data();
+  } else {
+    console.log('No such document!');
+    return null;
   }
 };

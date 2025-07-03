@@ -36,7 +36,7 @@ export default function ItemList() {
       <div className='flex flex-col bg-base-100 shadow-sm'>
         <div className='h-3/12'>
           <img
-            src={item.imgs[0]}
+            src={item.imgs[0].resized}
             loading='lazy'
             className='min-w-full h-[200px] object-cover object-center rounded-t-lg' /* ⭐️ `min-h` 제거, `w-full h-full` 적용 */
           />

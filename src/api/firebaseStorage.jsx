@@ -4,10 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 const storage = getStorage(app);
 
-export const uploadProductImage = async (file) => {
+export const uploadProductImage = async (file, pathPrefix = 'products/imgs/') => {
   // Storage에 저장될 고유한 파일 이름 생성 (UUID 사용)
   const uniqueFileName = `${uuidv4()}-${file.name}`;
-  const storageRef = ref(storage, `products/imgs/${uniqueFileName}`); // 'products/imgs/' 경로에 저장
+  const storageRef = ref(storage, `${pathPrefix}${uniqueFileName}`); // 'products/imgs/' 경로에 저장
 
   try {
     // 1. 파일 업로드
@@ -22,3 +22,5 @@ export const uploadProductImage = async (file) => {
     throw new Error('이미지 업로드 중 오류가 발생했습니다.');
   }
 };
+
+

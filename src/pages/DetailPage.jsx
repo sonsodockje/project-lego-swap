@@ -1,46 +1,25 @@
 import React from 'react';
-import { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { productFetchById } from '../api/firebaseStore';
-import { useState } from 'react';
 import { useAuth } from '../api/firebaseAuth';
+import { useQuery } from '@tanstack/react-query';
 
 export default function DetailPage() {
   const { id } = useParams();
-  const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState(null);
   const { currentUser } = useAuth(); // 현재 사용자 정보 가져오기
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!id) return; // id가 없으면 fetch하지 않음 (선택 사항)
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['product', id],
+    queryFn: () => productFetchById(id),
+    enabled: !!id, // id가 있을 때만 쿼리 실행
+  });
 
-      if (isLoading) {
-        return;
-      }
-
-      setIsLoading(true); // 로딩 시작
-
-      try {
-        // productFetchById가 데이터를 반환한다고 가정
-        // productFetchById도 setIsLoading을 인자로 받으면 내부에서 로딩 관리가 가능합니다.
-        const fetchedData = await productFetchById(id, setIsLoading);
-        setData(fetchedData); // 가져온 데이터를 data 상태에 저장
-      } catch (error) {
-        console.error('데이터를 불러오는 중 오류 발생:', error);
-        // 에러 처리 (예: 사용자에게 메시지 표시)
-        setData(null); // 에러 발생 시 data를 초기화
-      } finally {
-        setIsLoading(false); // 로딩 완료
-      }
-    };
-
-    fetchData(); // 정의된 비동기 함수 즉시 호출
-
-    // return () => { /* cleanup 함수 (필요시) */ };
-  }, [id, isLoading]);
   if (isLoading) {
     return <div>로딩 중...</div>;
+  }
+
+  if (isError) {
+    return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
   }
 
   if (!data) {
@@ -60,7 +39,7 @@ export default function DetailPage() {
           <img src={data.userPhoto} />
           {data.imgs &&
             data.imgs.map((img, index) => (
-              <img key={index} src={img} alt={`Image ${index + 1}`} />
+              <img key={index} src={img.original} alt={`Image ${index + 1}`} />
             ))}
         </>
       )}
@@ -70,3 +49,4 @@ export default function DetailPage() {
     </div>
   );
 }
+
