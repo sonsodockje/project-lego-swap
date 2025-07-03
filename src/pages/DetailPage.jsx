@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { deleteProductById, productFetchById } from '../api/firebaseStore';
 import { useAuth } from '../api/firebaseAuth';
 import { useQuery } from '@tanstack/react-query';
 
 export default function DetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate(); // useNavigate 훅 추가
   const { currentUser } = useAuth();
   const [mainImage, setMainImage] = useState(null);
 
@@ -37,10 +38,18 @@ export default function DetailPage() {
     setMainImage(imageUrl);
   };
 
-  // useEffect(()=>{
-  //   if(data && data.imgs && data.imgs.length > 0) {
-  //    setMainImage(data.imgs[0].original);}
-  // },[])
+  const handleDelete = async () => {
+    if (window.confirm('정말로 이 상품을 삭제하시겠습니까?')) {
+      try {
+        await deleteProductById(id);
+        alert('상품이 성공적으로 삭제되었습니다.');
+        navigate('/'); // 삭제 후 홈으로 이동
+      } catch (error) {
+        console.error('상품 삭제 중 오류 발생:', error);
+        alert('상품 삭제 중 오류가 발생했습니다.');
+      }
+    }
+  };
 
   return (
     <div className='container mx-auto p-4 bg-white rounded-lg shadow-md'>
@@ -113,9 +122,7 @@ export default function DetailPage() {
             수정하기
           </button>
           <button className='btn btn-error px-6 py-2 rounded-md text-white font-semibold' 
-          onClick={()=>{
-            deleteProductById(id)
-          }}>
+          onClick={handleDelete}>
             삭제하기
           </button>
         </div>
