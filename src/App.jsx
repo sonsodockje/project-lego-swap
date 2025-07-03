@@ -13,25 +13,25 @@ import DetailPage from './pages/DetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<MainPage />} />
-            <Route path='account' element={<MyPage />} />
-            <Route path='message' element={<DmPage />} />
-            <Route path='detail/:id' element={<DetailPage />} />
-            <Route path='write' element={<WritePage />} />
-            <Route path='/write/:id' element={<WritePage />} />
-            {/* <Route path="/posts/:id" element={<PostDetail />} /> */}
+    return (
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route element={<Layout />}>
+                        <Route index element={<MainPage />} />
+                        <Route path='account' element={<MyPage />} />
+                        <Route path='message' element={<DmPage />} />
+                        <Route path='detail/:id' element={<DetailPage />} />
+                        <Route path='write' element={<WritePage />} />
+                        <Route path='/write/:id' element={<WritePage />} />
+                        {/* <Route path="/posts/:id" element={<PostDetail />} /> */}
 
-            <Route path='*' element={<NotFoundPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  );
+                        <Route path='*' element={<NotFoundPage />} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
+    );
 }
 
 export default App;
