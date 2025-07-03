@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { productFetchById } from '../api/firebaseStore';
+import { deleteProductById, productFetchById } from '../api/firebaseStore';
 import { useAuth } from '../api/firebaseAuth';
 import { useQuery } from '@tanstack/react-query';
 
@@ -13,12 +13,13 @@ export default function DetailPage() {
     queryKey: ['product', id],
     queryFn: () => productFetchById(id),
     enabled: !!id,
-    onSuccess: (data) => {
-      if (data && data.imgs && data.imgs.length > 0) {
-        setMainImage(data.imgs[0].original);
-      }
-    },
   });
+
+  useEffect(() => {
+    if (data && data.imgs && data.imgs.length > 0) {
+      setMainImage(data.imgs[0].original);
+    }
+  }, [data]);
 
   if (isLoading) {
     return <div className='loading loading-spinner loading-lg mx-auto'></div>;
@@ -36,6 +37,11 @@ export default function DetailPage() {
     setMainImage(imageUrl);
   };
 
+  // useEffect(()=>{
+  //   if(data && data.imgs && data.imgs.length > 0) {
+  //    setMainImage(data.imgs[0].original);}
+  // },[])
+
   return (
     <div className='container mx-auto p-4 bg-white rounded-lg shadow-md'>
       <h1 className='text-3xl font-bold mb-4 text-gray-800'>{data.title}</h1>
@@ -46,13 +52,13 @@ export default function DetailPage() {
           <img
             src={mainImage}
             alt={data.title}
-            className='w-full h-96 object-cover rounded-lg shadow-sm'
+            className='w-full h-96 object-contain rounded-lg shadow-sm'
           />
         </div>
       )}
 
       {/* Thumbnails Section */}
-      {data.imgs && data.imgs.length > 1 && (
+      {data.imgs && data.imgs.length > 0 && (
         <div className='flex space-x-2 overflow-x-auto pb-2 mb-4'>
           {data.imgs.map((img, index) => (
             <img
@@ -67,7 +73,8 @@ export default function DetailPage() {
       )}
 
       {/* User Info */}
-      <div className='flex items-center mb-4 border-b pb-4'>
+      <div className="flex justify-between border-b-1 border-gray-100 pb-4 mb-4">
+         <div className='flex items-center   '>
         {data.userPhoto && (
           <img
             src={data.userPhoto}
@@ -82,23 +89,34 @@ export default function DetailPage() {
           </p>
         </div>
       </div>
+      {currentUser && data.uid !== currentUser.uid && ( <button className='btn btn-accent'>DM</button>)}
+     
+      </div>
+     
 
       {/* Product Details */}
       <div className='mb-4'>
         <p className='text-gray-700 text-lg leading-relaxed mb-4'>{data.body}</p>
         <div className='grid grid-cols-2 gap-2 text-gray-600 text-sm'>
-          <p><span className='font-semibold'>가격:</span> <span className='text-xl font-bold text-blue-600'>{data.price.toLocaleString()}원</span></p>
+          <p><span className='font-semibold'>가격:</span> <span className=''>{data.price.toLocaleString()}원</span></p>
+                  <p><span className='font-semibold'>개봉 여부:</span> {data.opened ? '개봉' : '미개봉'}</p>
           <p><span className='font-semibold'>판매팀:</span> {data.sell}</p>
           <p><span className='font-semibold'>희망팀:</span> {data.want}</p>
-          <p><span className='font-semibold'>개봉 여부:</span> {data.opened ? '개봉' : '미개봉'}</p>
+  
         </div>
       </div>
 
       {/* Action Button */}
       {currentUser && data.uid === currentUser.uid && (
-        <div className='flex justify-end mt-6'>
+        <div className='flex justify-end mt-6 gap-2'>
           <button className='btn btn-primary px-6 py-2 rounded-md text-white font-semibold'>
             수정하기
+          </button>
+          <button className='btn btn-error px-6 py-2 rounded-md text-white font-semibold' 
+          onClick={()=>{
+            deleteProductById(id)
+          }}>
+            삭제하기
           </button>
         </div>
       )}

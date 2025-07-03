@@ -10,6 +10,7 @@ import {
   orderBy,
   limit,
   startAfter,
+  deleteDoc, // deleteDoc 임포트 추가
 } from 'firebase/firestore';
 
 const db = getFirestore(app);
@@ -85,3 +86,12 @@ export const productFetchById = async (id) => {
   }
 };
 
+export const deleteProductById = async (id) => {
+  try {
+    await deleteDoc(doc(db, 'products', id));
+    console.log(`Document with ID ${id} successfully deleted!`);
+  } catch (error) {
+    console.error(`Error removing document with ID ${id}:`, error);
+    throw new Error('상품 삭제 중 오류가 발생했습니다.');
+  }
+};
