@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import { productFetchById } from '../api/firebaseStore';
 import { useAuth } from '../api/firebaseAuth';
@@ -6,45 +6,101 @@ import { useQuery } from '@tanstack/react-query';
 
 export default function DetailPage() {
   const { id } = useParams();
-  const { currentUser } = useAuth(); // 현재 사용자 정보 가져오기
+  const { currentUser } = useAuth();
+  const [mainImage, setMainImage] = useState(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['product', id],
     queryFn: () => productFetchById(id),
-    enabled: !!id, // id가 있을 때만 쿼리 실행
+    enabled: !!id,
+    onSuccess: (data) => {
+      if (data && data.imgs && data.imgs.length > 0) {
+        setMainImage(data.imgs[0].original);
+      }
+    },
   });
 
   if (isLoading) {
-    return <div>로딩 중...</div>;
+    return <div className='loading loading-spinner loading-lg mx-auto'></div>;
   }
 
   if (isError) {
-    return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
+    return <div className='text-red-500 text-center'>데이터를 불러오는 중 오류가 발생했습니다.</div>;
   }
 
   if (!data) {
-    return <div>데이터를 찾을 수 없습니다.</div>;
+    return <div className='text-center'>데이터를 찾을 수 없습니다.</div>;
   }
 
+  const handleThumbnailClick = (imageUrl) => {
+    setMainImage(imageUrl);
+  };
+
   return (
-    <div>
-      {/* 데이터가 있을 때만 표시 */}
-      {id && <p>현재 글 ID: {id}</p>}
-      {/* 여기에 데이터를 활용한 UI를 표시 */}
-      {data && (
-        <>
-          <h2>{data.title}</h2> {/* 예시: 데이터에 title 필드가 있다고 가정 */}
-          <p>{data.body}</p>{' '}
-          {/* 예시: 데이터에 description 필드가 있다고 가정 */}
-          <img src={data.userPhoto} />
-          {data.imgs &&
-            data.imgs.map((img, index) => (
-              <img key={index} src={img.original} alt={`Image ${index + 1}`} />
-            ))}
-        </>
+    <div className='container mx-auto p-4 bg-white rounded-lg shadow-md'>
+      <h1 className='text-3xl font-bold mb-4 text-gray-800'>{data.title}</h1>
+
+      {/* Main Image Section */}
+      {mainImage && (
+        <div className='mb-4'>
+          <img
+            src={mainImage}
+            alt={data.title}
+            className='w-full h-96 object-cover rounded-lg shadow-sm'
+          />
+        </div>
       )}
+
+      {/* Thumbnails Section */}
+      {data.imgs && data.imgs.length > 1 && (
+        <div className='flex space-x-2 overflow-x-auto pb-2 mb-4'>
+          {data.imgs.map((img, index) => (
+            <img
+              key={index}
+              src={img.resized} // 썸네일은 리사이징된 이미지 사용
+              alt={`Thumbnail ${index + 1}`}
+              className={`w-24 h-24 object-cover rounded-md cursor-pointer border-2 ${mainImage === img.original ? 'border-blue-500' : 'border-transparent'}`}
+              onClick={() => handleThumbnailClick(img.original)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* User Info */}
+      <div className='flex items-center mb-4 border-b pb-4'>
+        {data.userPhoto && (
+          <img
+            src={data.userPhoto}
+            alt={data.user}
+            className='w-12 h-12 rounded-full mr-3 object-cover'
+          />
+        )}
+        <div>
+          <p className='font-semibold text-lg text-gray-700'>{data.user}</p>
+          <p className='text-sm text-gray-500'>
+            {new Date(data.timestamp.seconds * 1000).toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+
+      {/* Product Details */}
+      <div className='mb-4'>
+        <p className='text-gray-700 text-lg leading-relaxed mb-4'>{data.body}</p>
+        <div className='grid grid-cols-2 gap-2 text-gray-600 text-sm'>
+          <p><span className='font-semibold'>가격:</span> <span className='text-xl font-bold text-blue-600'>{data.price.toLocaleString()}원</span></p>
+          <p><span className='font-semibold'>판매팀:</span> {data.sell}</p>
+          <p><span className='font-semibold'>희망팀:</span> {data.want}</p>
+          <p><span className='font-semibold'>개봉 여부:</span> {data.opened ? '개봉' : '미개봉'}</p>
+        </div>
+      </div>
+
+      {/* Action Button */}
       {currentUser && data.uid === currentUser.uid && (
-        <button className='btn btn-primary'> 수정하기</button>
+        <div className='flex justify-end mt-6'>
+          <button className='btn btn-primary px-6 py-2 rounded-md text-white font-semibold'>
+            수정하기
+          </button>
+        </div>
       )}
     </div>
   );
