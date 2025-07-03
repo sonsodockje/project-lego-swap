@@ -5,81 +5,114 @@ import { useNavigate } from 'react-router';
 
 const MAX_IMAGES = 4;
 
-const resizeImage = (file) => {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
+const resizeImage = async (file) => {
+    const MAX_DIMENSION = 500;
+
+    // 1. 파일을 Data URL로 읽는 비동기 작업
+    const readDataURL = () => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => resolve(event.target.result);
+            reader.onerror = (error) => reject(error); // 에러 처리 추가
+            reader.readAsDataURL(file);
+        });
+    };
+
+    // 2. Data URL에서 이미지를 로드하는 비동기 작업
+    const loadImage = (src) => {
+        return new Promise((resolve, reject) => {
             const img = new Image();
-            img.onload = () => {
-                const MAX_DIMENSION = 500;
-                let width = img.width;
-                let height = img.height;
+            img.onload = () => resolve(img);
+            img.onerror = (error) => reject(error); // 에러 처리 추가
+            img.src = src;
+        });
+    };
 
-                if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-                    if (width > height) {
-                        height = Math.round((height * MAX_DIMENSION) / width);
-                        width = MAX_DIMENSION;
-                    } else {
-                        width = Math.round((width * MAX_DIMENSION) / height);
-                        height = MAX_DIMENSION;
-                    }
-                }
+    try {
+        const dataURL = await readDataURL(); // 파일 읽기 완료까지 대기
+        const img = await loadImage(dataURL); // 이미지 로드 완료까지 대기
 
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
+        let width = img.width;
+        let height = img.height;
 
-                canvas.toBlob((blob) => {
+        // 이미지 크기 조절 로직 (기존과 동일)
+        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+            if (width > height) {
+                height = Math.round((height * MAX_DIMENSION) / width);
+                width = MAX_DIMENSION;
+            } else {
+                width = Math.round((width * MAX_DIMENSION) / height);
+                height = MAX_DIMENSION;
+            }
+        }
+
+        // Canvas를 이용한 이미지 그리기 및 Blob 추출
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        return new Promise((resolve, reject) => {
+            canvas.toBlob((blob) => {
+                if (blob) {
                     resolve(blob);
-                }, file.type);
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
+                } else {
+                    reject(new Error('Failed to create Blob from canvas.'));
+                }
+            }, file.type);
+        });
+
+    } catch (error) {
+        console.error("Image resizing failed:", error);
+        throw error; // 에러를 다시 던져서 호출자에게 알림
+    }
 };
 
 const handleImageSelection = async (
     e,
-    selectedFiles,
-    setPreviewImgUrls,
-    setSelectedFiles,
+    selectedFiles, // 현재 선택된 파일 상태 (배열)
+    setPreviewImgUrls, // 미리보기 URL 상태 업데이트 함수
+    setSelectedFiles, // 선택된 파일(원본 + 리사이즈) 상태 업데이트 함수
 ) => {
-    const newlySelectedFiles = Array.from(e.target.files);
-    const imageFiles = newlySelectedFiles.filter((item) =>
-        item.type.startsWith('image/'),
-    );
+    const newFilesFromInput = Array.from(e.target.files);
+    const newImageFiles = newFilesFromInput.filter(file => file.type.startsWith('image/'));
 
-    if (selectedFiles.length + imageFiles.length > MAX_IMAGES) {
-        alert(
-            `사진은 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다. 이미지가 너무 많습니다.`,
-        );
-        e.target.value = '';
+    // 1. 최대 이미지 개수 초과 확인
+    const MAX_IMAGES = 10; // MAX_IMAGES는 외부에서 정의된 상수라고 가정합니다.
+    if (selectedFiles.length + newImageFiles.length > MAX_IMAGES) {
+        alert(`사진은 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다. 이미지가 너무 많습니다.`);
+        e.target.value = ''; // 파일 입력 필드 초기화
         return;
     }
 
-    const processedFiles = await Promise.all(
-        imageFiles.map(async (file) => {
+    // 2. 이미지 리사이즈 및 File 객체 생성 (비동기 병렬 처리)
+    const processedFilesPromises = newImageFiles.map(async (file) => {
+        try {
             const resizedBlob = await resizeImage(file);
-            // Blob에 원본 파일의 이름을 부여하여 Firebase Storage에서 사용할 수 있도록 합니다.
-            // Blob은 name 속성이 없으므로, File 객체로 변환하거나, Blob과 이름을 함께 전달해야 합니다.
-            // 여기서는 Blob에 name 속성을 추가하여 File 객체처럼 보이게 합니다.
-            return new File([resizedBlob], file.name, { type: resizedBlob.type });
-        }),
-    );
+            // 원본 파일의 이름과 타입을 사용하여 새로운 File 객체 생성
+            return new File([resizedBlob], file.name, { type: file.type });
+        } catch (error) {
+            console.error(`Error resizing image ${file.name}:`, error);
+            // 에러 발생 시 해당 파일은 건너뛰거나, null/undefined 반환하여 이후 필터링
+            return null;
+        }
+    });
 
-    const newPreviewUrls = imageFiles.map((file) => URL.createObjectURL(file)); // 미리보기는 원본 이미지로
-    setPreviewImgUrls((prevUrls) => [...prevUrls, ...newPreviewUrls]);
-    setSelectedFiles((prevFiles) => [
-        ...prevFiles,
-        ...imageFiles.map((originalFile, index) => ({
-            original: originalFile,
-            resized: processedFiles[index], // 이미 리사이징된 Blob (File 객체로 변환됨)
-        })),
-    ]);
+    const processedFiles = (await Promise.all(processedFilesPromises)).filter(Boolean); // null 값 필터링
 
+    // 3. 미리보기 URL 생성 및 상태 업데이트
+    const newPreviewUrls = newImageFiles.map(file => URL.createObjectURL(file));
+    setPreviewImgUrls(prevUrls => [...prevUrls, ...newPreviewUrls]);
+
+    // 4. 선택된 파일 상태 업데이트 (원본 + 리사이즈된 파일 매핑)
+    const filesToStore = newImageFiles.map((originalFile, index) => ({
+        original: originalFile,
+        resized: processedFiles[index], // 리사이즈 및 File 객체로 변환된 파일
+    }));
+    setSelectedFiles(prevFiles => [...prevFiles, ...filesToStore]);
+
+    // 5. 파일 입력 필드 초기화
     e.target.value = '';
 };
 
@@ -410,3 +443,4 @@ function IsOpen({ formData, setFormData }) {
         </>
     );
 }
+

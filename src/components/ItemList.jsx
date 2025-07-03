@@ -2,8 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { productsFetch } from '../api/firebaseStore';
 import { Link } from 'react-router-dom';
 import Pagination from './Pagination';
+import { useState } from 'react';
 
 export default function ItemList() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2; // 한 페이지당 보여줄 아이템 수
+
   const { data: productsList, isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: productsFetch,
@@ -13,19 +17,32 @@ export default function ItemList() {
     return <div className='loading loading-spinner loading-lg'></div>;
   }
 
+  const totalPages = Math.ceil(productsList.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = productsList.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className='flex flex-col items-center justify-center'>
       {isLoading && <div className='loading loading-spinner loading-lg'></div>}
       {!isLoading && productsList.length > 0 && (
         <>
           <div className='grid grid-cols-2 gap-4 w-full'>
-            {productsList.map((item) => (
+            {currentItems.map((item) => (
               <Link to={`/detail/${item.id}`} key={item.id}>
                 <Item item={item} />
               </Link>
             ))}
           </div>
-          <Pagination />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </>
       )}
     </div>
