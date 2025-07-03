@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { productsFetch } from '../firebaseStore';
+import { productsFetch } from '../api/firebaseStore';
 import { Link } from 'react-router-dom';
 import Pagination from './Pagination';
 
@@ -64,4 +64,5 @@ export default function ItemList() {
     );
   }
 }
+
 

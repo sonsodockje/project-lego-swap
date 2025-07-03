@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { productUpload } from '../firebaseStore'; // productUpload 함수 경로
-import { uploadProductImage } from '../firebaseStorage'; // uploadProductImage 함수 경로
+import { productUpload } from '../api/firebaseStore'; // productUpload 함수 경로
+import { uploadProductImage } from '../api/firebaseStorage'; // uploadProductImage 함수 경로
 import { useNavigate } from 'react-router';
 
 const MAX_IMAGES = 4;

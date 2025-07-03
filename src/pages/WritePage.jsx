@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../firebaseAuth';
+import { useAuth } from '../api/firebaseAuth';
 import { useParams } from 'react-router';
 import WriteForm from '../components/WriteForm';
 
