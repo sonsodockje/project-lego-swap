@@ -1,4 +1,4 @@
-import { useAuth } from '../firebaseAuth';
+import { useAuth } from '../api/firebaseAuth';
 import { Link } from 'react-router';
 
 export default function UserInfoCard() {

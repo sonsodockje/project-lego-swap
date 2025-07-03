@@ -1,9 +1,9 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
-import { productFetchById } from '../firebaseStore';
+import { productFetchById } from '../api/firebaseStore';
 import { useState } from 'react';
-import { useAuth } from '../firebaseAuth';
+import { useAuth } from '../api/firebaseAuth';
 
 export default function DetailPage() {
   const { id } = useParams();
@@ -38,7 +38,7 @@ export default function DetailPage() {
     fetchData(); // 정의된 비동기 함수 즉시 호출
 
     // return () => { /* cleanup 함수 (필요시) */ };
-  }, [id]);
+  }, [id, isLoading]);
   if (isLoading) {
     return <div>로딩 중...</div>;
   }

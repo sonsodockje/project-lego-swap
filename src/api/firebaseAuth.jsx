@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
  * Firebase Authentication Setup
  * Initializes Firebase Authentication with Google provider.
  */
-const auth = getAuth();
+const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 /**

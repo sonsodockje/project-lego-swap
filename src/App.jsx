@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './styles/App.css';
 import { BrowserRouter, Routes, Route } from 'react-router';
-import { AuthProvider } from './firebaseAuth';
+import { AuthProvider } from './api/firebaseAuth';
 
 import MainPage from './pages/MainPage';
 import MyPage from './pages/MyPage';

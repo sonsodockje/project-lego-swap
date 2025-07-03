@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '../layout/Layout';
-import { useAuth } from '../firebaseAuth';
+import { useAuth } from '../api/firebaseAuth';
 
 export default function MyPage() {
   const { currentUser, isLogin, handleLogout } = useAuth();
