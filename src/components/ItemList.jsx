@@ -1,36 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { productsFetch } from '../firebaseStore';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import Pagination from './Pagination';
 
 export default function ItemList() {
-  const [productsList, setProductsList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: productsList, isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: productsFetch,
+  });
 
-  useEffect(() => {
-    const dataList = async () => {
-      try {
-        const products = await productsFetch();
-        setProductsList(products);
-        setLoading(false);
-        console.log('Fetched products:', products);
-        return products;
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        return [];
-      }
-    };
-    dataList();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return <div className='loading loading-spinner loading-lg'></div>;
   }
 
   return (
     <div className='flex flex-col items-center justify-center'>
-      {loading && <div className='loading loading-spinner loading-lg'></div>}
-      {!loading && productsList.length > 0 && (
+      {isLoading && <div className='loading loading-spinner loading-lg'></div>}
+      {!isLoading && productsList.length > 0 && (
         <>
           <div className='grid grid-cols-2 gap-4 w-full'>
             {productsList.map((item) => (
@@ -78,3 +64,4 @@ export default function ItemList() {
     );
   }
 }
+

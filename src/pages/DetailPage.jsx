@@ -64,7 +64,7 @@ export default function DetailPage() {
             ))}
         </>
       )}
-      {data.uid === currentUser.uid && (
+      {currentUser && data.uid === currentUser.uid && (
         <button className='btn btn-primary'> 수정하기</button>
       )}
     </div>
