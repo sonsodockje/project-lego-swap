@@ -1,49 +1,51 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { productsFetch } from '../api/firebaseStore';
 import { Link } from 'react-router-dom';
-import Pagination from './Pagination';
-import { useState } from 'react';
 
 export default function ItemList() {
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2; // 한 페이지당 보여줄 아이템 수
 
-  const { data: productsList, isLoading } = useQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteQuery({
     queryKey: ['products'],
-    queryFn: productsFetch,
+    queryFn: ({ pageParam }) => productsFetch(pageParam, itemsPerPage),
+    getNextPageParam: (lastPage) => lastPage.lastVisible,
+    initialPageParam: null,
   });
 
   if (isLoading) {
     return <div className='loading loading-spinner loading-lg'></div>;
   }
 
-  const totalPages = Math.ceil(productsList.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = productsList.slice(indexOfFirstItem, indexOfLastItem);
+  if (isError) {
+    return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
+  }
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+  const allProducts = data?.pages.flatMap((page) => page.products) || [];
 
   return (
     <div className='flex flex-col items-center justify-center'>
-      {isLoading && <div className='loading loading-spinner loading-lg'></div>}
-      {!isLoading && productsList.length > 0 && (
+      {allProducts.length > 0 && (
         <>
           <div className='grid grid-cols-2 gap-4 w-full'>
-            {currentItems.map((item) => (
+            {allProducts.map((item) => (
               <Link to={`/detail/${item.id}`} key={item.id}>
                 <Item item={item} />
               </Link>
             ))}
           </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+          {hasNextPage && (
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className='btn btn-primary mt-4'
+            >
+              {isFetchingNextPage ? '로딩 중...' : '더 보기'}
+            </button>
+          )}
         </>
+      )}
+      {allProducts.length === 0 && !isLoading && !isError && (
+        <div>상품이 없습니다.</div>
       )}
     </div>
   );
