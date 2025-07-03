@@ -62,9 +62,8 @@ const resizeImage = async (file) => {
                 }
             }, file.type);
         });
-
     } catch (error) {
-        console.error("Image resizing failed:", error);
+        console.error('Image resizing failed:', error);
         throw error; // 에러를 다시 던져서 호출자에게 알림
     }
 };
@@ -76,12 +75,16 @@ const handleImageSelection = async (
     setSelectedFiles, // 선택된 파일(원본 + 리사이즈) 상태 업데이트 함수
 ) => {
     const newFilesFromInput = Array.from(e.target.files);
-    const newImageFiles = newFilesFromInput.filter(file => file.type.startsWith('image/'));
+    const newImageFiles = newFilesFromInput.filter((file) =>
+        file.type.startsWith('image/'),
+    );
 
     // 1. 최대 이미지 개수 초과 확인
     const MAX_IMAGES = 10; // MAX_IMAGES는 외부에서 정의된 상수라고 가정합니다.
     if (selectedFiles.length + newImageFiles.length > MAX_IMAGES) {
-        alert(`사진은 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다. 이미지가 너무 많습니다.`);
+        alert(
+            `사진은 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다. 이미지가 너무 많습니다.`,
+        );
         e.target.value = ''; // 파일 입력 필드 초기화
         return;
     }
@@ -99,18 +102,22 @@ const handleImageSelection = async (
         }
     });
 
-    const processedFiles = (await Promise.all(processedFilesPromises)).filter(Boolean); // null 값 필터링
+    const processedFiles = (await Promise.all(processedFilesPromises)).filter(
+        Boolean,
+    ); // null 값 필터링
 
     // 3. 미리보기 URL 생성 및 상태 업데이트
-    const newPreviewUrls = newImageFiles.map(file => URL.createObjectURL(file));
-    setPreviewImgUrls(prevUrls => [...prevUrls, ...newPreviewUrls]);
+    const newPreviewUrls = newImageFiles.map((file) =>
+        URL.createObjectURL(file),
+    );
+    setPreviewImgUrls((prevUrls) => [...prevUrls, ...newPreviewUrls]);
 
     // 4. 선택된 파일 상태 업데이트 (원본 + 리사이즈된 파일 매핑)
     const filesToStore = newImageFiles.map((originalFile, index) => ({
         original: originalFile,
         resized: processedFiles[index], // 리사이즈 및 File 객체로 변환된 파일
     }));
-    setSelectedFiles(prevFiles => [...prevFiles, ...filesToStore]);
+    setSelectedFiles((prevFiles) => [...prevFiles, ...filesToStore]);
 
     // 5. 파일 입력 필드 초기화
     e.target.value = '';
@@ -118,7 +125,7 @@ const handleImageSelection = async (
 
 const handleRemoveImage = (
     indexToRemove,
-previewImgUrls,
+    previewImgUrls,
     setPreviewImgUrls,
     setSelectedFiles,
 ) => {
@@ -443,4 +450,3 @@ function IsOpen({ formData, setFormData }) {
         </>
     );
 }
-
