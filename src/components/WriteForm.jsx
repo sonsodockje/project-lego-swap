@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { productUpload } from '../api/firebaseStore'; // productUpload 함수 경로
-import { uploadProductImage } from '../api/firebaseStorage'; // uploadProductImage 함수 경로
+import React, { useState, useRef, useEffect } from 'react';
+import { productUpload, productUpdate } from '../api/firebaseStore'; // productUpdate 추가
+import { uploadProductImage } from '../api/firebaseStorage';
 import { useNavigate } from 'react-router-dom';
 
 const MAX_IMAGES = 4;
@@ -8,34 +8,31 @@ const MAX_IMAGES = 4;
 const resizeImage = async (file) => {
     const MAX_DIMENSION = 500;
 
-    // 1. 파일을 Data URL로 읽는 비동기 작업
     const readDataURL = () => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (event) => resolve(event.target.result);
-            reader.onerror = (error) => reject(error); // 에러 처리 추가
+            reader.onerror = (error) => reject(error);
             reader.readAsDataURL(file);
         });
     };
 
-    // 2. Data URL에서 이미지를 로드하는 비동기 작업
     const loadImage = (src) => {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = () => resolve(img);
-            img.onerror = (error) => reject(error); // 에러 처리 추가
+            img.onerror = (error) => reject(error);
             img.src = src;
         });
     };
 
     try {
-        const dataURL = await readDataURL(); // 파일 읽기 완료까지 대기
-        const img = await loadImage(dataURL); // 이미지 로드 완료까지 대기
+        const dataURL = await readDataURL();
+        const img = await loadImage(dataURL);
 
         let width = img.width;
         let height = img.height;
 
-        // 이미지 크기 조절 로직 (기존과 동일)
         if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
             if (width > height) {
                 height = Math.round((height * MAX_DIMENSION) / width);
@@ -46,7 +43,6 @@ const resizeImage = async (file) => {
             }
         }
 
-        // Canvas를 이용한 이미지 그리기 및 Blob 추출
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
@@ -64,62 +60,54 @@ const resizeImage = async (file) => {
         });
     } catch (error) {
         console.error('Image resizing failed:', error);
-        throw error; // 에러를 다시 던져서 호출자에게 알림
+        throw error;
     }
 };
 
 const handleImageSelection = async (
     e,
-    selectedFiles, // 현재 선택된 파일 상태 (배열)
-    setPreviewImgUrls, // 미리보기 URL 상태 업데이트 함수
-    setSelectedFiles, // 선택된 파일(원본 + 리사이즈) 상태 업데이트 함수
+    currentSelectedFiles,
+    setPreviewImgUrls,
+    setSelectedFiles,
 ) => {
     const newFilesFromInput = Array.from(e.target.files);
     const newImageFiles = newFilesFromInput.filter((file) =>
         file.type.startsWith('image/'),
     );
 
-    // 1. 최대 이미지 개수 초과 확인
-    const MAX_IMAGES = 10; // MAX_IMAGES는 외부에서 정의된 상수라고 가정합니다.
-    if (selectedFiles.length + newImageFiles.length > MAX_IMAGES) {
+    const totalImages = currentSelectedFiles.length + newImageFiles.length;
+    if (totalImages > MAX_IMAGES) {
         alert(
             `사진은 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다. 이미지가 너무 많습니다.`,
         );
-        e.target.value = ''; // 파일 입력 필드 초기화
+        e.target.value = '';
         return;
     }
 
-    // 2. 이미지 리사이즈 및 File 객체 생성 (비동기 병렬 처리)
     const processedFilesPromises = newImageFiles.map(async (file) => {
         try {
             const resizedBlob = await resizeImage(file);
-            // 원본 파일의 이름과 타입을 사용하여 새로운 File 객체 생성
-            return new File([resizedBlob], file.name, { type: file.type });
+            return {
+                original: file,
+                resized: new File([resizedBlob], file.name, { type: file.type }),
+                isExisting: false,
+            };
         } catch (error) {
             console.error(`Error resizing image ${file.name}:`, error);
-            // 에러 발생 시 해당 파일은 건너뛰거나, null/undefined 반환하여 이후 필터링
             return null;
         }
     });
 
     const processedFiles = (await Promise.all(processedFilesPromises)).filter(
         Boolean,
-    ); // null 값 필터링
+    );
 
-    // 3. 미리보기 URL 생성 및 상태 업데이트
-    const newPreviewUrls = newImageFiles.map((file) =>
-        URL.createObjectURL(file),
+    const newPreviewUrls = processedFiles.map((filePair) =>
+        URL.createObjectURL(filePair.resized),
     );
     setPreviewImgUrls((prevUrls) => [...prevUrls, ...newPreviewUrls]);
+    setSelectedFiles((prevFiles) => [...prevFiles, ...processedFiles]);
 
-    // 4. 선택된 파일 상태 업데이트 (원본 + 리사이즈된 파일 매핑)
-    const filesToStore = newImageFiles.map((originalFile, index) => ({
-        original: originalFile,
-        resized: processedFiles[index], // 리사이즈 및 File 객체로 변환된 파일
-    }));
-    setSelectedFiles((prevFiles) => [...prevFiles, ...filesToStore]);
-
-    // 5. 파일 입력 필드 초기화
     e.target.value = '';
 };
 
@@ -128,29 +116,33 @@ const handleRemoveImage = (
     previewImgUrls,
     setPreviewImgUrls,
     setSelectedFiles,
+    currentSelectedFiles,
 ) => {
-    URL.revokeObjectURL(previewImgUrls[indexToRemove]);
+    // URL.revokeObjectURL은 새로 추가된 이미지에 대해서만 호출
+    if (!currentSelectedFiles[indexToRemove].isExisting) {
+        URL.revokeObjectURL(previewImgUrls[indexToRemove]);
+    }
+
     setPreviewImgUrls((prevUrls) =>
         prevUrls.filter((_, idx) => idx !== indexToRemove),
     );
     setSelectedFiles((prevFiles) =>
         prevFiles.filter((_, idx) => idx !== indexToRemove),
     );
-    // 만약 수정 중인 게시물에 이미지가 있는 경우라면 추가적인 로직이 필요합니다.
 };
 
-export default function WriteForm({ currentUser }) {
+export default function WriteForm({ currentUser, id, initialData }) {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
-    const [previewImgUrls, setPreviewImgUrls] = useState([]); // 미리보기용 URL 상태
-    const [selectedFiles, setSelectedFiles] = useState([]); // ㄹㅇ 사이즈  파일 상태
+    const [previewImgUrls, setPreviewImgUrls] = useState([]);
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     const [formData, setFormData] = useState({
         title: '',
         user: currentUser.displayName,
         userPhoto: currentUser.photoURL,
-        imgs: [], // Firebase Storage 다운로드 URL이 저장될 배열
+        imgs: [],
         body: '',
         uid: currentUser.uid,
         timestamp: new Date(),
@@ -160,6 +152,54 @@ export default function WriteForm({ currentUser }) {
         opened: true,
         soldOut: false,
     });
+
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                title: initialData.title || '',
+                user: initialData.user || currentUser.displayName,
+                userPhoto: initialData.userPhoto || currentUser.photoURL,
+                body: initialData.body || '',
+                uid: initialData.uid || currentUser.uid,
+                timestamp: initialData.timestamp || new Date(),
+                price: initialData.price || 0,
+                want: initialData.want || '',
+                sell: initialData.sell || '',
+                opened: initialData.opened,
+                soldOut: initialData.soldOut,
+            });
+
+            if (initialData.imgs && initialData.imgs.length > 0) {
+                const initialPreviewUrls = initialData.imgs.map((img) => img.resized);
+                setPreviewImgUrls(initialPreviewUrls);
+                setSelectedFiles(
+                    initialData.imgs.map((img) => ({
+                        original: img.original,
+                        resized: img.resized,
+                        isExisting: true,
+                    })),
+                );
+            }
+        } else {
+            // 새 글 작성 시 폼 초기화
+            setFormData({
+                title: '',
+                user: currentUser.displayName,
+                userPhoto: currentUser.photoURL,
+                imgs: [],
+                body: '',
+                uid: currentUser.uid,
+                timestamp: new Date(),
+                price: 0,
+                want: '',
+                sell: '',
+                opened: true,
+                soldOut: false,
+            });
+            setPreviewImgUrls([]);
+            setSelectedFiles([]);
+        }
+    }, [initialData, currentUser]);
 
     const fileInputRef = useRef(null);
 
@@ -177,26 +217,37 @@ export default function WriteForm({ currentUser }) {
         try {
             const uploadedUrls = await Promise.all(
                 selectedFiles.map(async (filePair) => {
-                    const originalURL = await uploadProductImage(
-                        filePair.original,
-                        'products/imgs/original/',
-                    );
-                    const resizedURL = await uploadProductImage(
-                        filePair.resized,
-                        'products/imgs/resized/',
-                    );
-                    return { original: originalURL, resized: resizedURL };
+                    if (filePair.isExisting) {
+                        return { original: filePair.original, resized: filePair.resized };
+                    } else {
+                        const originalURL = await uploadProductImage(
+                            filePair.original,
+                            'products/imgs/original/',
+                        );
+                        const resizedURL = await uploadProductImage(
+                            filePair.resized,
+                            'products/imgs/resized/',
+                        );
+                        return { original: originalURL, resized: resizedURL };
+                    }
                 }),
             );
+
             const finalFormData = {
                 ...formData,
                 imgs: uploadedUrls,
             };
-            console.log('최종 폼 데이터:', finalFormData);
-            await productUpload(finalFormData, setIsLoading, navigate);
+
+            if (id) {
+                // 기존 게시물 업데이트
+                await productUpdate(id, finalFormData, setIsLoading, navigate);
+            } else {
+                // 새 게시물 업로드
+                await productUpload(finalFormData, setIsLoading, navigate);
+            }
         } catch (error) {
-            console.error('상품 등록 중 오류 발생:', error);
-            alert('상품 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+            console.error('상품 처리 중 오류 발생:', error);
+            alert('상품 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
         } finally {
             setIsLoading(false);
         }
@@ -238,6 +289,7 @@ export default function WriteForm({ currentUser }) {
                                             previewImgUrls,
                                             setPreviewImgUrls,
                                             setSelectedFiles,
+                                            selectedFiles,
                                         )
                                     }
                                     className='absolute top-0.5 right-0.5 bg-black bg-opacity-60 text-white border-none rounded-full w-5 h-5 flex items-center justify-center cursor-pointer text-sm'

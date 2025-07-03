@@ -10,7 +10,8 @@ import {
     orderBy,
     limit,
     startAfter,
-    deleteDoc, // deleteDoc 임포트 추가
+    deleteDoc,
+    updateDoc, // updateDoc 임포트 추가
 } from 'firebase/firestore';
 
 const db = getFirestore(app);
@@ -96,5 +97,22 @@ export const deleteProductById = async (id) => {
     } catch (error) {
         console.error(`Error removing document with ID ${id}:`, error);
         throw new Error('상품 삭제 중 오류가 발생했습니다.');
+    }
+};
+
+export const productUpdate = async (id, data, setIsLoading, navigate) => {
+    try {
+        const docRef = doc(db, 'products', id);
+        await updateDoc(docRef, data);
+        console.log('Document with ID ', id, ' successfully updated!');
+
+        if (navigate) {
+            navigate('/detail/' + id); // 업데이트 성공 후 상세 페이지로 이동
+        }
+    } catch (e) {
+        console.error('Error updating document: ', e);
+        alert('상품 업데이트 중 오류가 발생했습니다.');
+    } finally {
+        setIsLoading(false);
     }
 };
