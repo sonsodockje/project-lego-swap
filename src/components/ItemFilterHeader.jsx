@@ -1,6 +1,27 @@
 import React, { useRef, useState } from 'react';
 
-const ItemFilterHeader = () => {
+
+
+  // const MainFilterContext = createContext(null);
+
+  // export function useMainFilter() {
+  //   return useContext(MainFilterContext);
+  // }
+
+  // export function MainFilterContextProvider({ children }) {
+  //     const [filter, setFilter] = useState(null);
+
+  //     const value = {
+  //       filter,
+  //       setFilter  
+  //     };
+
+  //     return (
+  //         <MainFilterContext.Provider value={value}>{children}</MainFilterContext.Provider>
+  //     );
+  // }
+
+const ItemFilterHeader = ({handleFilter}) => {
   const list = [
     '페라리',
     '맥라렌',
@@ -14,6 +35,9 @@ const ItemFilterHeader = () => {
     '아카데미',
     '기타',
   ];
+  
+
+
 
   const scrollRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -41,30 +65,31 @@ const ItemFilterHeader = () => {
 
 
   return (
-    <div className="relative flex items-center mb-4">
+
     
       <div
         ref={scrollRef}
-        className="flex items-center w-full overflow-x-auto gap-2 no-scrollbar"
+        className="flex items-center w-full overflow-x-auto mb-4 gap-2 no-scrollbar"
         style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
         onMouseDown={onDragStart}
         onMouseUp={onDragEnd}
         onMouseLeave={onDragEnd}
         onMouseMove={onDragMove}
       >
-        <p className="btn btn-sm flex-shrink-0">all</p>
+        <p className="btn btn-sm flex-shrink-0" onClick={(e)=>{handleFilter(e)}}>all</p>
         {list.map((item) => (
           <p
             className="btn btn-sm flex-shrink-0"
             key={item}
             style={{ userSelect: 'none' }}
+            onClick={(e)=>{handleFilter(e)}}
           >
             {item}
           </p>
         ))}
       </div>
     
-    </div>
+    
   );
 };
 

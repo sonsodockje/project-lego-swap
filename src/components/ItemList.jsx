@@ -3,7 +3,7 @@ import { productsFetch } from '../api/firebaseStore';
 import { Link } from 'react-router-dom';
 import React, { memo } from 'react';
 
-export default function ItemList() {
+export default function ItemList({ filterData }) {
     const itemsPerPage = 4; // 한 페이지당 보여줄 아이템 수
 
     const {
@@ -20,28 +20,34 @@ export default function ItemList() {
         initialPageParam: null,
     });
 
+    const allProducts = data?.pages.flatMap((page) => page.products) || [];
+
+    const filteredProducts =
+        filterData && filterData !== 'all'
+            ? allProducts.filter((item) => item.want === filterData)
+            : allProducts;
+
     if (isLoading) {
         return (
-        <>
-        <div className="inline-grid *:[grid-area:1/1]">
-            <div className="status status-error animate-ping"></div>
-            <div className="status status-error"></div>
-</div> loding
-</>)
+            <>
+                <div className="inline-grid *:[grid-area:1/1]">
+                    <div className="status status-error animate-ping"></div>
+                    <div className="status status-error"></div>
+                </div> loding
+            </>
+        );
     }
 
     if (isError) {
         return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
     }
 
-    const allProducts = data?.pages.flatMap((page) => page.products) || [];
-
     return (
         <div className='flex flex-col items-center justify-center'>
-            {allProducts.length > 0 && (
+            {filteredProducts.length > 0 && (
                 <>
                     <div className='grid grid-cols-1 gap-4 w-full'>
-                        {allProducts.map((item) => (
+                        {filteredProducts.map((item) => (
                             <Link to={`/detail/${item.id}`} key={item.id}>
                                 <MemoizedItem item={item} />
                             </Link>
@@ -51,18 +57,20 @@ export default function ItemList() {
                         <button
                             onClick={() => fetchNextPage()}
                             disabled={isFetchingNextPage}
-                            className='btn btn-primary mt-4'>
+                            className='btn btn-primary mt-4'
+                        >
                             {isFetchingNextPage ? '로딩 중...' : '더 보기'}
                         </button>
                     )}
                 </>
             )}
-            {allProducts.length === 0 && !isLoading && !isError && (
+            {filteredProducts.length === 0 && !isLoading && !isError && (
                 <div>상품이 없습니다.</div>
             )}
         </div>
     );
 }
+
 const Item = ({ item }) => {
     const truncateTitle = (title) => {
         if (title.length > 14) {
