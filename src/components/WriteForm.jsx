@@ -30,12 +30,15 @@ const handleImageSelection = async (
     // 프로미스 정의
     const processedFilesPromises = newImageFiles.map(async (file) => {
         try {
-            const resizedBlob = await resizeImage(file, 300);
+            const big = await resizeImage(file, 980);
+            const small = await resizeImage(file, 300);
+
             return {
-                original: file,
-                resized: new File([resizedBlob], file.name, { type: file.type }),
+                original: new File([big], file.name, { type: file.type }),
+                resized: new File([small], file.name, { type: file.type }),
                 isExisting: false,
             };
+            
         } catch (error) {
             console.error(`Error resizing image ${file.name}:`, error);
             return null;
