@@ -21,7 +21,13 @@ export default function ItemList() {
     });
 
     if (isLoading) {
-        return <div className='loading loading-spinner loading-lg'></div>;
+        return (
+        <>
+        <div className="inline-grid *:[grid-area:1/1]">
+            <div className="status status-error animate-ping"></div>
+            <div className="status status-error"></div>
+</div> loding
+</>)
     }
 
     if (isError) {
