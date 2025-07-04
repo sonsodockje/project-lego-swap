@@ -146,7 +146,8 @@ export default function DetailPage() {
             {currentUser && data.uid === currentUser.uid && (
                 <div className='flex justify-end mt-6 gap-2'>
                     <Link
-                    to={`/write/${id}`} className='btn btn-primary px-6 py-2 rounded-md text-white font-semibold'>
+                        to={`/write/${id}`}
+                        className='btn btn-primary px-6 py-2 rounded-md text-white font-semibold'>
                         수정하기
                     </Link>
                     <button

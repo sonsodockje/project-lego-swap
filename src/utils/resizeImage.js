@@ -57,4 +57,4 @@ const resizeImage = async (file, size) => {
     }
 };
 
-export default resizeImage
+export default resizeImage;

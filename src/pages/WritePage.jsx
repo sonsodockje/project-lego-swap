@@ -3,12 +3,16 @@ import { useAuth } from '../api/firebaseAuth';
 import { useParams } from 'react-router-dom';
 import WriteForm from '../components/WriteForm';
 import { useQuery } from '@tanstack/react-query';
-import {  productFetchById } from '../api/firebaseStore';
+import { productFetchById } from '../api/firebaseStore';
 
 export default function WritePage() {
     const { isLogin, currentUser } = useAuth();
     const { id } = useParams();
-    const { data: post, isLoading, isError } = useQuery({
+    const {
+        data: post,
+        isLoading,
+        isError,
+    } = useQuery({
         queryKey: ['product', id],
         queryFn: () => productFetchById(id),
         enabled: !!id, // id가 있을 때만 쿼리 실행
@@ -21,7 +25,7 @@ export default function WritePage() {
 
     if (id) {
         if (isLoading) {
-            return <div className="loading loading-spinner loading-lg"></div>;
+            return <div className='loading loading-spinner loading-lg'></div>;
         }
 
         if (isError) {
@@ -34,12 +38,15 @@ export default function WritePage() {
         }
     }
 
-
     return (
         <>
             {id && <p>현재 수정 글 ID: {id} // 이 글을 쓴 사람 정보 </p>}{' '}
             {/* id 값을 표시할 때 좀 더 명확하게 */}
-            <WriteForm currentUser={currentUser} id={id} initialData={id ? post : null} />
+            <WriteForm
+                currentUser={currentUser}
+                id={id}
+                initialData={id ? post : null}
+            />
         </>
     );
 }

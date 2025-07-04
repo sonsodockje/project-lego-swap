@@ -12,10 +12,11 @@ const handleImageSelection = async (
     setPreviewImgUrls,
     setSelectedFiles,
 ) => {
-
     // 사진 개수 제한
     const MAX_IMAGES = 4;
-    const newImageFiles = Array.from(e.target.files).filter((file) => file.type.startsWith('image/'))
+    const newImageFiles = Array.from(e.target.files).filter((file) =>
+        file.type.startsWith('image/'),
+    );
 
     const totalImages = currentSelectedFiles.length + newImageFiles.length;
     if (totalImages > MAX_IMAGES) {
@@ -38,22 +39,25 @@ const handleImageSelection = async (
                 resized: new File([small], file.name, { type: file.type }),
                 isExisting: false,
             };
-            
         } catch (error) {
             console.error(`Error resizing image ${file.name}:`, error);
             return null;
         }
     });
 
+    // 반환된 값들중 완료 된 것들만 필터링
     const processedFiles = (await Promise.all(processedFilesPromises)).filter(
         Boolean,
     );
 
+    // 작게 한것을 미리 보기 이미지로도 쓰기
     const newPreviewUrls = processedFiles.map((filePair) =>
         URL.createObjectURL(filePair.resized),
     );
 
     setPreviewImgUrls((prevUrls) => [...prevUrls, ...newPreviewUrls]);
+
+    // original, resized, isExisting 들어감.
     setSelectedFiles((prevFiles) => [...prevFiles, ...processedFiles]);
 
     e.target.value = '';
@@ -70,7 +74,6 @@ const handleRemoveImage = (
     if (!currentSelectedFiles[indexToRemove].isExisting) {
         URL.revokeObjectURL(previewImgUrls[indexToRemove]);
     }
-
     setPreviewImgUrls((prevUrls) =>
         prevUrls.filter((_, idx) => idx !== indexToRemove),
     );
@@ -118,7 +121,9 @@ export default function WriteForm({ currentUser, id, initialData }) {
             });
 
             if (initialData.imgs && initialData.imgs.length > 0) {
-                const initialPreviewUrls = initialData.imgs.map((img) => img.resized);
+                const initialPreviewUrls = initialData.imgs.map(
+                    (img) => img.resized,
+                );
                 setPreviewImgUrls(initialPreviewUrls);
                 setSelectedFiles(
                     initialData.imgs.map((img) => ({
@@ -166,7 +171,10 @@ export default function WriteForm({ currentUser, id, initialData }) {
             const uploadedUrls = await Promise.all(
                 selectedFiles.map(async (filePair) => {
                     if (filePair.isExisting) {
-                        return { original: filePair.original, resized: filePair.resized };
+                        return {
+                            original: filePair.original,
+                            resized: filePair.resized,
+                        };
                     } else {
                         const originalURL = await uploadProductImage(
                             filePair.original,
@@ -322,17 +330,9 @@ export default function WriteForm({ currentUser, id, initialData }) {
                 <p className='validator-hint '>상품 가격을 입력해주세요.</p>
                 <section>
                     <p>판매팀</p>
-                    <FormFilter
-                        type='sell'
-                
-                        setFormData={setFormData}
-                    />
+                    <FormFilter type='sell' setFormData={setFormData} />
                     <p>희망팀</p>
-                    <FormFilter
-                        type='want'
-                        
-                        setFormData={setFormData}
-                    />
+                    <FormFilter type='want' setFormData={setFormData} />
                 </section>
 
                 <IsOpen formData={formData} setFormData={setFormData} />
@@ -353,6 +353,3 @@ export default function WriteForm({ currentUser, id, initialData }) {
         </>
     );
 }
-
-
-

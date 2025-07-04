@@ -1,7 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 const IsOpen = ({ formData, setFormData }) => {
- return (
+    return (
         <>
             <div className='flex gap-2 validator w-full mb-14'>
                 <div className='flex gap-1'>
@@ -45,6 +45,6 @@ const IsOpen = ({ formData, setFormData }) => {
             <p className='validator-hint'>개봉 여부를 선택해주세요.</p>
         </>
     );
-}
+};
 
-export default IsOpen
+export default IsOpen;

@@ -34,7 +34,7 @@ export default function ItemList() {
         <div className='flex flex-col items-center justify-center'>
             {allProducts.length > 0 && (
                 <>
-                    <div className='grid grid-cols-2 gap-4 w-full'>
+                    <div className='grid grid-cols-1 gap-4 w-full'>
                         {allProducts.map((item) => (
                             <Link to={`/detail/${item.id}`} key={item.id}>
                                 <MemoizedItem item={item} />
@@ -65,44 +65,62 @@ const Item = ({ item }) => {
         return title;
     };
     return (
-        <div className='flex flex-col bg-base-100 shadow-sm'>
-            <div className='h-[150px]'>
+        <div className='flex flex-row  rounded-lg shadow-sm'>
+            <div className="relative">
                 <img
-                    src={item.imgs[0].resized}
-                    loading='lazy'
-                    className='min-w-full h-full object-cover object-center rounded-t-lg' /* ⭐️ `min-h` 제거, `w-full h-full` 적용 */
-                />
+                src={item.imgs[0].resized}
+                loading='lazy'
+                className=' object-cover max-h-[150px] min-w-[200px]  rounded-tl-lg rounded-bl-lg'
+                    />
+            <div className="absolute bottom-0 flex items-center gap-2 bg-black opacity-70 rounded-md m-2 p-1">
+                <img src={item.userPhoto} className='rounded-full w-4 h-4' alt="" />
+                <p className='text-white text-xs'>{item.user}</p>
             </div>
+            
+            </div>
+            
 
-            <div className='flex flex-col max-h-44 p-4 gap-1'>
-                <h2 className='font-semibold text-md'>
+            <div className='flex flex-col w-full px-4 py-2 gap-1 items-start'>
+                <h2 className='font-semibold text-[1.1rem]'>
                     {truncateTitle(item.title)}
                 </h2>
-                <div className='flex gap-2 text-xs font-semibold text-white mb-4'>
-                    <div className='py-1 px-2 rounded-full bg-red-400'>
+                <div className='flex gap-2 text-[.6rem] font-semibold text-white mb-4 justify-center items-center'>
+                    <div className='py-[4px] px-[6px] rounded-full bg-red-400'>
                         {item.sell}
                     </div>
+                    <p className='text-gray-500'>을</p>
                     <div className='py-1 px-2 rounded-full bg-blue-400'>
                         {item.want}
                     </div>
+                    <p className='text-gray-500'>로 교환합니다.</p>
                 </div>
-                <div className='flex justify-between'>
-                    <p className='text-lg font-bold'>${item.price}</p>
-                    <p>
-                        {item.opened === 0 ? (
-                            <span className='text-red-500 font-semibold text-sm'>
-                                개봉
-                            </span>
-                        ) : (
-                            <span className='text-green-500 font-semibold text-sm'>
-                                미개봉
-                            </span>
-                        )}
-                    </p>
-                </div>
-
-                <div className='flex justify-end'>
-                    <button className='btn btn-primary btn-sm'>찜</button>
+                <div className='flex flex-row justify-between items-center w-full'>
+                    <div className=''>
+                        <p className='text-lg font-bold'>${item.price}</p>
+                        <p>
+                            {item.opened === 0 ? (
+                                <span className='text-red-500 font-semibold text-sm'>
+                                    개봉
+                                </span>
+                            ) : (
+                                <span className='text-green-500 font-semibold text-sm'>
+                                    미개봉
+                                </span>
+                            )}
+                        </p>
+                    </div>
+                    <div className='flex gap-2 h-full items-end '>
+                        <div className='btn btn-sm'
+                        onClick={(e)=>{
+                             e.preventDefault()
+                
+                    console.log("ee")}}
+                        >dm</div>
+                        <div className='btn btn-sm bg-emerald-100' onClick={(e)=>{
+                             e.preventDefault()
+                
+                    console.log("ee")}}>찜</div>
+                    </div>
                 </div>
             </div>
         </div>
