@@ -2,67 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { productUpload, productUpdate } from '../api/firebaseStore'; // productUpdate 추가
 import { uploadProductImage } from '../api/firebaseStorage';
 import { useNavigate } from 'react-router-dom';
-
-const MAX_IMAGES = 4;
-
-const resizeImage = async (file) => {
-    const MAX_DIMENSION = 500;
-
-    const readDataURL = () => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (event) => resolve(event.target.result);
-            reader.onerror = (error) => reject(error);
-            reader.readAsDataURL(file);
-        });
-    };
-
-    const loadImage = (src) => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = (error) => reject(error);
-            img.src = src;
-        });
-    };
-
-    try {
-        const dataURL = await readDataURL();
-        const img = await loadImage(dataURL);
-
-        let width = img.width;
-        let height = img.height;
-
-        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-            if (width > height) {
-                height = Math.round((height * MAX_DIMENSION) / width);
-                width = MAX_DIMENSION;
-            } else {
-                width = Math.round((width * MAX_DIMENSION) / height);
-                height = MAX_DIMENSION;
-            }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        return new Promise((resolve, reject) => {
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    resolve(blob);
-                } else {
-                    reject(new Error('Failed to create Blob from canvas.'));
-                }
-            }, file.type);
-        });
-    } catch (error) {
-        console.error('Image resizing failed:', error);
-        throw error;
-    }
-};
+import resizeImage from '../utils/resizeImage';
+import IsOpen from './IsOpen';
+import FormFilter from './FormFilter';
 
 const handleImageSelection = async (
     e,
@@ -70,10 +12,10 @@ const handleImageSelection = async (
     setPreviewImgUrls,
     setSelectedFiles,
 ) => {
-    const newFilesFromInput = Array.from(e.target.files);
-    const newImageFiles = newFilesFromInput.filter((file) =>
-        file.type.startsWith('image/'),
-    );
+
+    // 사진 개수 제한
+    const MAX_IMAGES = 4;
+    const newImageFiles = Array.from(e.target.files).filter((file) => file.type.startsWith('image/'))
 
     const totalImages = currentSelectedFiles.length + newImageFiles.length;
     if (totalImages > MAX_IMAGES) {
@@ -82,11 +24,13 @@ const handleImageSelection = async (
         );
         e.target.value = '';
         return;
+        // 실행취소
     }
 
+    // 프로미스 정의
     const processedFilesPromises = newImageFiles.map(async (file) => {
         try {
-            const resizedBlob = await resizeImage(file);
+            const resizedBlob = await resizeImage(file, 300);
             return {
                 original: file,
                 resized: new File([resizedBlob], file.name, { type: file.type }),
@@ -105,6 +49,7 @@ const handleImageSelection = async (
     const newPreviewUrls = processedFiles.map((filePair) =>
         URL.createObjectURL(filePair.resized),
     );
+
     setPreviewImgUrls((prevUrls) => [...prevUrls, ...newPreviewUrls]);
     setSelectedFiles((prevFiles) => [...prevFiles, ...processedFiles]);
 
@@ -376,37 +321,13 @@ export default function WriteForm({ currentUser, id, initialData }) {
                     <p>판매팀</p>
                     <FormFilter
                         type='sell'
-                        list={[
-                            '페라리',
-                            '맥라렌',
-                            '메르세데스',
-                            '레드불',
-                            '윌리암스',
-                            '알파로메오',
-                            '레드불레이싱',
-                            '하스',
-                            '아스톤마틴',
-                            '아카데미',
-                            '기타',
-                        ]}
+                
                         setFormData={setFormData}
                     />
                     <p>희망팀</p>
                     <FormFilter
                         type='want'
-                        list={[
-                            '상관없음',
-                            '맥라렌',
-                            '메르세데스',
-                            '레드불',
-                            '윌리암스',
-                            '알파로메오',
-                            '레드불레이싱',
-                            '하스',
-                            '아스톤마틴',
-                            '아카데미',
-                            '기타',
-                        ]}
+                        
                         setFormData={setFormData}
                     />
                 </section>
@@ -430,75 +351,5 @@ export default function WriteForm({ currentUser, id, initialData }) {
     );
 }
 
-function FormFilter({ type, list, setFormData }) {
-    return (
-        <>
-            <select
-                className='select validator w-full'
-                required
-                onChange={(e) => {
-                    setFormData((prevFormData) => ({
-                        ...prevFormData,
-                        [type]: e.target.value,
-                    }));
-                }}>
-                <option disabled selected value=''>
-                    선택하시게나
-                </option>
-                {list.map((item) => (
-                    <option key={item} value={item}>
-                        {item}
-                    </option>
-                ))}
-            </select>
-            <p className='validator-hint'>필수 선택 항목입니다.</p>
-        </>
-    );
-}
 
-function IsOpen({ formData, setFormData }) {
-    return (
-        <>
-            <div className='flex gap-2 validator w-full mb-14'>
-                <div className='flex gap-1'>
-                    <label htmlFor='opened_true'>개봉</label>
-                    <input
-                        type='radio'
-                        name='opened'
-                        id='opened_true'
-                        value='true'
-                        className='radio radio-md'
-                        required
-                        checked={formData.opened === true}
-                        onChange={(e) => {
-                            setFormData((prevFormData) => ({
-                                ...prevFormData,
-                                opened: e.target.value === 'true',
-                            }));
-                        }}
-                    />
-                </div>
 
-                <div className='flex gap-1'>
-                    <label htmlFor='opened_false'>미개봉</label>
-                    <input
-                        type='radio'
-                        name='opened'
-                        id='opened_false'
-                        value='false'
-                        className='radio radio-md'
-                        required
-                        checked={formData.opened === false}
-                        onChange={(e) => {
-                            setFormData((prevFormData) => ({
-                                ...prevFormData,
-                                opened: e.target.value === 'true',
-                            }));
-                        }}
-                    />
-                </div>
-            </div>
-            <p className='validator-hint'>개봉 여부를 선택해주세요.</p>
-        </>
-    );
-}
