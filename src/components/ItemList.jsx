@@ -71,13 +71,16 @@ const Item = ({ item }) => {
         return title;
     };
     return (
-        <div className='flex flex-row  rounded-lg shadow-sm'>
-            <div className="relative">
-                <img
+        <div className='flex flex-row  max-h-[150px] rounded-lg shadow-sm'>
+            <div className="relative ">
+                <div className="h-full md:min-w-[200px] min-w-[150px] overflow-hidden ">
+                    <img
                 src={item.imgs[0].resized}
                 loading='lazy'
-                className=' object-cover max-h-[150px] md:min-w-[200px] min-w-[100px]  rounded-tl-lg rounded-bl-lg'
+                className=' object-cover   rounded-tl-lg rounded-bl-lg w-full h-full'
                     />
+                </div>
+                
             <div className="absolute bottom-0 flex items-center gap-2 bg-black opacity-70 rounded-md m-2 p-1">
                 <img src={item.userPhoto} className='rounded-full w-4 h-4' alt="" />
                 <p className='text-white text-xs'>{item.user}</p>
