@@ -1,9 +1,13 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { productsFetch } from '../api/firebaseStore';
+import { productsFetch, userLike } from '../api/firebaseStore';
 import { Link } from 'react-router-dom';
 import React, { memo } from 'react';
+import { useAuth } from '../api/firebaseAuth';
 
 export default function ItemList({ filterData }) {
+
+
+        
     const itemsPerPage = 4; // 한 페이지당 보여줄 아이템 수
 
     const {
@@ -72,6 +76,8 @@ export default function ItemList({ filterData }) {
 }
 
 const Item = ({ item }) => {
+        const { currentUser } = useAuth();
+
     const truncateTitle = (title) => {
         if (title.length > 14) {
             return title.substring(0, 14) + '...';
@@ -135,6 +141,8 @@ const Item = ({ item }) => {
                         >dm</div>
                         <div className='btn btn-sm bg-emerald-100' onClick={(e)=>{
                              e.preventDefault()
+                             userLike(item.id, currentUser.uid)
+
                 
                     console.log("ee")}}>찜</div>
                     </div>
