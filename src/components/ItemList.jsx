@@ -70,7 +70,7 @@ const Item = ({ item }) => {
                 <img
                 src={item.imgs[0].resized}
                 loading='lazy'
-                className=' object-cover max-h-[150px] min-w-[200px]  rounded-tl-lg rounded-bl-lg'
+                className=' object-cover max-h-[150px] md:min-w-[200px] min-w-[100px]  rounded-tl-lg rounded-bl-lg'
                     />
             <div className="absolute bottom-0 flex items-center gap-2 bg-black opacity-70 rounded-md m-2 p-1">
                 <img src={item.userPhoto} className='rounded-full w-4 h-4' alt="" />
