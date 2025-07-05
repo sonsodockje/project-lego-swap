@@ -5,9 +5,6 @@ import React, { memo } from 'react';
 import { useAuth } from '../api/firebaseAuth';
 
 export default function ItemList({ filterData }) {
-
-
-        
     const itemsPerPage = 4; // 한 페이지당 보여줄 아이템 수
 
     const {
@@ -34,10 +31,11 @@ export default function ItemList({ filterData }) {
     if (isLoading) {
         return (
             <>
-                <div className="inline-grid *:[grid-area:1/1]">
-                    <div className="status status-error animate-ping"></div>
-                    <div className="status status-error"></div>
-                </div> loding
+                <div className='inline-grid *:[grid-area:1/1]'>
+                    <div className='status status-error animate-ping'></div>
+                    <div className='status status-error'></div>
+                </div>{' '}
+                loding
             </>
         );
     }
@@ -61,8 +59,7 @@ export default function ItemList({ filterData }) {
                         <button
                             onClick={() => fetchNextPage()}
                             disabled={isFetchingNextPage}
-                            className='btn btn-primary mt-4'
-                        >
+                            className='btn btn-primary mt-4'>
                             {isFetchingNextPage ? '로딩 중...' : '더 보기'}
                         </button>
                     )}
@@ -76,7 +73,7 @@ export default function ItemList({ filterData }) {
 }
 
 const Item = ({ item }) => {
-        const { currentUser } = useAuth();
+    const { currentUser } = useAuth();
 
     const truncateTitle = (title) => {
         if (title.length > 14) {
@@ -86,22 +83,26 @@ const Item = ({ item }) => {
     };
     return (
         <div className='flex flex-row  max-h-[150px] rounded-lg shadow-sm'>
-            <div className="relative">
-                <div className="h-full w-[150px] md:w-[200px] lg:w-[250px] overflow-hidden"> {/* 화면 크기별로 고정 너비 설정 */}
-    <img
-        src={item.imgs[0].resized}
-        loading='lazy'
-        className='object-cover rounded-tl-lg rounded-bl-lg w-full h-full' 
-    />
-</div>
-                
-            <div className="absolute bottom-0 flex items-center gap-2 bg-black opacity-70 rounded-md m-2 p-1">
-                <img src={item.userPhoto} className='rounded-full w-4 h-4' alt="" />
-                <p className='text-white text-xs'>{item.user}</p>
+            <div className='relative'>
+                <div className='h-full w-[150px] md:w-[200px] lg:w-[250px] overflow-hidden'>
+                    {' '}
+                    {/* 화면 크기별로 고정 너비 설정 */}
+                    <img
+                        src={item.imgs[0].resized}
+                        loading='lazy'
+                        className='object-cover rounded-tl-lg rounded-bl-lg w-full h-full'
+                    />
+                </div>
+
+                <div className='absolute bottom-0 flex items-center gap-2 bg-black opacity-70 rounded-md m-2 p-1'>
+                    <img
+                        src={item.userPhoto}
+                        className='rounded-full w-4 h-4'
+                        alt=''
+                    />
+                    <p className='text-white text-xs'>{item.user}</p>
+                </div>
             </div>
-            
-            </div>
-            
 
             <div className='flex flex-col w-full px-4 py-2 gap-1 items-start'>
                 <h2 className='font-semibold text-[1.1rem]'>
@@ -133,18 +134,25 @@ const Item = ({ item }) => {
                         </p>
                     </div>
                     <div className='flex gap-2 h-full items-end '>
-                        <div className='btn btn-sm'
-                        onClick={(e)=>{
-                             e.preventDefault()
-                
-                    console.log("ee")}}
-                        >dm</div>
-                        <div className='btn btn-sm bg-emerald-100' onClick={(e)=>{
-                             e.preventDefault()
-                             userLike(item.id, currentUser.uid)
+                        <div
+                            className='btn btn-sm'
+                            onClick={(e) => {
+                                e.preventDefault();
 
-                
-                    console.log("ee")}}>찜</div>
+                                console.log('ee');
+                            }}>
+                            dm
+                        </div>
+                        <div
+                            className='btn btn-sm bg-emerald-100'
+                            onClick={(e) => {
+                                e.preventDefault();
+                                userLike(item.id, currentUser.uid);
+
+                                console.log('ee');
+                            }}>
+                            찜
+                        </div>
                     </div>
                 </div>
             </div>

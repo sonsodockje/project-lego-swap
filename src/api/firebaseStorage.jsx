@@ -4,6 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 const storage = getStorage(app);
 
+/**
+ * Firebase Storage에 이미지를 업로드하고 다운로드 URL을 반환
+ * @param {File} file - 업로드할 이미지 파일
+ * @param {string} [pathPrefix='products/imgs/'] - Storage에 저장될 경로 접두사
+ * @returns {Promise<string>} - 업로드된 이미지의 다운로드 URL을 반환하는 Promise 객체
+ * @throws {Error} - 이미지 업로드 중 오류가 발생하면 에러를 던짐
+ */
 export const uploadProductImage = async (
     file,
     pathPrefix = 'products/imgs/',

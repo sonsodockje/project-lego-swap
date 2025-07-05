@@ -5,12 +5,10 @@ import { readUserLike } from '../api/firebaseStore';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 
-
 export default function MyPage() {
     const { currentUser, isLogin, handleLogout } = useAuth();
 
-
-const {
+    const {
         data: likedProducts, // data 이름을 likedProducts로 변경하여 명확하게 사용
         isLoading,
         isError,
@@ -26,16 +24,14 @@ const {
     }
 
     if (isError) {
-        return <div>찜 목록을 불러오는데 오류가 발생했습니다: {error.message}</div>;
+        return (
+            <div>찜 목록을 불러오는데 오류가 발생했습니다: {error.message}</div>
+        );
     }
 
     if (!likedProducts || likedProducts.length === 0) {
         return <div>아직 찜한 상품이 없습니다.</div>;
     }
-
-
-
-    
 
     if (!isLogin) {
         return <Layout>로그인 ㄱ</Layout>;
@@ -52,16 +48,18 @@ const {
             <div className=''>내가 쓴글</div>
             <div className=''>나의 대화 목록</div>
             <div className=''>나의 짐</div>
-             <ul>
+            <ul>
                 {likedProducts.map((product) => (
                     <Link
-                    to={`/detail/${product.productId}`}
-                    key={product.productId}>
-                        <div className="m-4 bg-blue-200">
-                                상품 ID: {product.productId} (찜한 시간: {new Date(product.likedAt.seconds * 1000).toLocaleString()})
+                        to={`/detail/${product.productId}`}
+                        key={product.productId}>
+                        <div className='m-4 bg-blue-200'>
+                            상품 ID: {product.productId} (찜한 시간:{' '}
+                            {new Date(
+                                product.likedAt.seconds * 1000,
+                            ).toLocaleString()}
+                            )
                         </div>
-                        
-                    
                     </Link>
                 ))}
             </ul>

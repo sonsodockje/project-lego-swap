@@ -14,10 +14,13 @@ const handleImageSelection = async (
 ) => {
     // 사진 개수 제한
     const MAX_IMAGES = 4;
+
+    // 1. 사진 파일 배열 만듦. 
     const newImageFiles = Array.from(e.target.files).filter((file) =>
         file.type.startsWith('image/'),
     );
 
+    // 2. 이미지 개수 체크함. 
     const totalImages = currentSelectedFiles.length + newImageFiles.length;
     if (totalImages > MAX_IMAGES) {
         alert(
@@ -28,7 +31,7 @@ const handleImageSelection = async (
         // 실행취소
     }
 
-    // 프로미스 정의
+    // 3. 리사이징 함수를 실행함. 
     const processedFilesPromises = newImageFiles.map(async (file) => {
         try {
             const big = await resizeImage(file, 980);
@@ -45,21 +48,24 @@ const handleImageSelection = async (
         }
     });
 
-    // 반환된 값들중 완료 된 것들만 필터링
+    // 4. 리사이징 실행후 정상적인 것들만 필터함. 
     const processedFiles = (await Promise.all(processedFilesPromises)).filter(
         Boolean,
     );
 
-    // 작게 한것을 미리 보기 이미지로도 쓰기
+    // 5. 미리보기 이미지 링크 배열에 삭은 사진 넣음
     const newPreviewUrls = processedFiles.map((filePair) =>
         URL.createObjectURL(filePair.resized),
     );
 
+    // 6. 미리보기 상태 업데이트
     setPreviewImgUrls((prevUrls) => [...prevUrls, ...newPreviewUrls]);
 
+    // 7. store에 저장될 상태 업데이트
     // original, resized, isExisting 들어감.
     setSelectedFiles((prevFiles) => [...prevFiles, ...processedFiles]);
 
+    // 8. 초기화
     e.target.value = '';
 };
 

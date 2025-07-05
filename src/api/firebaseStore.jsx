@@ -15,12 +15,14 @@ import {
     updateDoc, // updateDoc 임포트 추가
 } from 'firebase/firestore';
 
-
-
-
 const db = getFirestore(app);
 
-
+/**
+ * Firestore에 상품 데이터를 업로드
+ * @param {object} data - 업로드할 상품 데이터
+ * @param {Function} setIsLoading - 로딩 상태 변경 함수
+ * @param {Function} navigate - 업로드 성공 후 페이지 이동을 처리하는 함수
+ */
 export const productUpload = async (data, setIsLoading, navigate) => {
     try {
         const docRef = await addDoc(collection(db, 'products'), data);
@@ -37,6 +39,13 @@ export const productUpload = async (data, setIsLoading, navigate) => {
     }
 };
 
+/**
+ * Firestore에서 상품 목록을 가져옴 (전체)
+ * @param {DocumentSnapshot} [lastVisibleDoc=null] - 마지막으로 가져온 문서의 스냅샷. 페이지네이션에 사용.
+ * @param {number} [itemsPerPage=8] - 페이지당 가져올 상품 수
+ * @returns {Promise<{products: Array<object>, lastVisible: DocumentSnapshot, hasMore: boolean}>} - 상품 목록, 마지막 문서 스냅샷, 추가 데이터 존재 여부를 포함하는 객체를 반환하는 Promise 객체
+ * @throws {Error}
+ */
 export const productsFetch = async (
     lastVisibleDoc = null,
     itemsPerPage = 8,
@@ -82,6 +91,11 @@ export const productsFetch = async (
     }
 };
 
+/**
+ * Firestore에서 ID로 특정 상품의 데이터를 가져옴
+ * @param {string} id - 상품의 ID
+ * @returns {Promise<object|null>} - 상품 데이터를 포함하는 Promise 객체를 반환하거나, 문서가 없으면 null을 반환
+ */
 export const productFetchById = async (id) => {
     const docRef = doc(db, 'products', id);
     const docSnap = await getDoc(docRef);
@@ -95,6 +109,11 @@ export const productFetchById = async (id) => {
     }
 };
 
+/**
+ * Firestore에서 ID로 특정 상품을 삭제
+ * @param {string} id - 상품의 ID
+ * @throws {Error}
+ */
 export const deleteProductById = async (id) => {
     try {
         await deleteDoc(doc(db, 'products', id));
@@ -105,6 +124,13 @@ export const deleteProductById = async (id) => {
     }
 };
 
+/**
+ * Firestore에서 특정 상품의 데이터를 업데이트
+ * @param {string} id - 업데이트할 상품의 ID
+ * @param {object} data - 업데이트할 상품 데이터
+ * @param {Function} setIsLoading - 로딩 상태 설정 함수
+ * @param {Function} navigate - 페이지 이동 함수
+ */
 export const productUpdate = async (id, data, setIsLoading, navigate) => {
     try {
         const docRef = doc(db, 'products', id);
@@ -122,7 +148,11 @@ export const productUpdate = async (id, data, setIsLoading, navigate) => {
     }
 };
 
-
+/**
+ * 사용자가 특정 상품에 '좋아요'를 누를 때 Firestore에 데이터를 저장
+ * @param {string} productId - '좋아요'를 누른 상품의 ID
+ * @param {string} currentUserId - 현재 로그인한 사용자의 ID
+ */
 export const userLike = async (productId, currentUserId) => {
     try {
         // 'user' 컬렉션 -> 'currentUserId' 문서 -> 'like' 서브컬렉션에 접근
@@ -148,6 +178,12 @@ export const userLike = async (productId, currentUserId) => {
     }
 };
 
+/**
+ * Firestore에서 사용자가 '좋아요'를 누른 상품 목록을 가져옴
+ * @param {string} currentUserId - 현재 로그인한 사용자의 ID
+ * @returns {Promise<Array<object>>} - '좋아요'를 누른 상품 목록을 포함하는 Promise 객체를 반환
+ * @throws {Error}
+ */
 export const readUserLike = async (currentUserId) => {
     try {
         // 'user' 컬렉션 -> 'currentUserId' 문서 -> 'like' 서브컬렉션 자체를 참조
@@ -161,7 +197,7 @@ export const readUserLike = async (currentUserId) => {
             // 각 문서의 ID가 productId이고, 문서 데이터는 likedAt 등을 포함합니다.
             likedProducts.push({
                 productId: doc.id, // 문서 ID (이것이 productId)
-                ...doc.data(),     // 문서 내의 다른 데이터 (예: likedAt)
+                ...doc.data(), // 문서 내의 다른 데이터 (예: likedAt)
             });
         });
 
