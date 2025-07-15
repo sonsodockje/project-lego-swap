@@ -1,11 +1,9 @@
 import React from 'react';
 
-// 총 페이지 계산,
-// 현재 페이지 표시,
-// 페이지 변경시 상태 변경,
-
-export default function Pagination({ currentPage, totalPages, onPageChange }) {
+export default function Pagination({ totalItems, itemsPerPage, currentPage, onPageChange }) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
     const pageNumbers = [];
+
     for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
     }

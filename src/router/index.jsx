@@ -6,6 +6,8 @@ import WritePage from '../pages/WritePage';
 import Layout from '../layout/Layout';
 import DetailPage from '../pages/DetailPage';
 import NotFoundPage from '../pages/NotFoundPage';
+import DmListPage from '../pages/DmListPage';
+
 
 const Router = () => {
     return (
@@ -13,7 +15,9 @@ const Router = () => {
             <Route element={<Layout />}>
                 <Route index element={<MainPage />} />
                 <Route path='account' element={<MyPage />} />
-                <Route path='message' element={<DmPage />} />
+    
+                <Route path='dm/:chatRoomId' element={<DmPage />} />
+                <Route path='dm' element={<DmListPage />} />
                 <Route path='detail/:id' element={<DetailPage />} />
                 <Route path='write' element={<WritePage />} />
                 <Route path='/write/:id' element={<WritePage />} />

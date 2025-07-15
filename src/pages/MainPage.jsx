@@ -1,18 +1,69 @@
 import React, { useState } from 'react';
 import ItemList from '../components/ItemList';
 import ItemFilterHeader from '../components/ItemFilterHeader';
+import Pagination from '../components/Pagination';
+import { useQuery } from '@tanstack/react-query';
+import { productsFetch } from '../api/firebaseStore';
 
 export default function MainPage() {
-    const [filter, setFiler] = useState('');
+    const [filter, setFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4;
+
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ['products'],
+        queryFn: productsFetch,
+    });
 
     const handleFilter = (e) => {
-        setFiler(e.target.innerText);
+        setFilter(e.target.innerText);
+        setCurrentPage(1); // 필터 변경 시 첫 페이지로 이동
     };
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    if (isLoading) {
+        return (
+            <>
+                <div className='inline-grid *:[grid-area:1/1]'>
+                    <div className='status status-error animate-ping'></div>
+                    <div className='status status-error'></div>
+                </div>{' '}
+                loding
+            </>
+        );
+    }
+
+    if (isError) {
+        return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
+    }
+
+    const allProducts = data?.products || [];
+
+    const filteredProducts =
+        filter && filter !== 'all'
+            ? allProducts.filter((item) => item.want === filter)
+            : allProducts;
+
+    // 클라이언트 측 페이지네이션
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalItems = filteredProducts.length; // 필터링된 상품의 총 개수
 
     return (
         <>
             <ItemFilterHeader handleFilter={handleFilter} />
-            <ItemList filterData={filter} />
+            <ItemList products={currentItems} />
+            <Pagination
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+            />
         </>
     );
 }

@@ -1,79 +1,30 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { productsFetch, userLike } from '../api/firebaseStore';
-import { Link } from 'react-router-dom';
+import { userLike } from '../api/firebaseStore';
+import { Link, useNavigate } from 'react-router-dom';
 import React, { memo } from 'react';
 import { useAuth } from '../api/firebaseAuth';
+import { getOrCreateChatRoom } from '../api/firebaseRealtime';
 
-export default function ItemList({ filterData }) {
-    const itemsPerPage = 4; // 한 페이지당 보여줄 아이템 수
-
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-        isError,
-    } = useInfiniteQuery({
-        queryKey: ['products'],
-        queryFn: ({ pageParam }) => productsFetch(pageParam, itemsPerPage),
-        getNextPageParam: (lastPage) => lastPage.lastVisible,
-        initialPageParam: null,
-    });
-
-    const allProducts = data?.pages.flatMap((page) => page.products) || [];
-
-    const filteredProducts =
-        filterData && filterData !== 'all'
-            ? allProducts.filter((item) => item.want === filterData)
-            : allProducts;
-
-    if (isLoading) {
-        return (
-            <>
-                <div className='inline-grid *:[grid-area:1/1]'>
-                    <div className='status status-error animate-ping'></div>
-                    <div className='status status-error'></div>
-                </div>{' '}
-                loding
-            </>
-        );
-    }
-
-    if (isError) {
-        return <div>데이터를 불러오는 중 오류가 발생했습니다.</div>;
+export default function ItemList({ products }) {
+    if (products.length === 0) {
+        return <div>상품이 없습니다.</div>;
     }
 
     return (
         <div className='flex flex-col items-center justify-center'>
-            {filteredProducts.length > 0 && (
-                <>
-                    <div className='grid grid-cols-1 gap-4 w-full'>
-                        {filteredProducts.map((item) => (
-                            <Link to={`/detail/${item.id}`} key={item.id}>
-                                <MemoizedItem item={item} />
-                            </Link>
-                        ))}
-                    </div>
-                    {hasNextPage && (
-                        <button
-                            onClick={() => fetchNextPage()}
-                            disabled={isFetchingNextPage}
-                            className='btn btn-primary mt-4'>
-                            {isFetchingNextPage ? '로딩 중...' : '더 보기'}
-                        </button>
-                    )}
-                </>
-            )}
-            {filteredProducts.length === 0 && !isLoading && !isError && (
-                <div>상품이 없습니다.</div>
-            )}
+            <div className='grid grid-cols-1 gap-4 w-full'>
+                {products.map((item) => (
+                    <Link to={`/detail/${item.id}`} key={item.id}>
+                        <MemoizedItem item={item} />
+                    </Link>
+                ))}
+            </div>
         </div>
     );
 }
 
 const Item = ({ item }) => {
     const { currentUser } = useAuth();
+    const navigate = useNavigate();
 
     const truncateTitle = (title) => {
         if (title.length > 14) {
@@ -81,12 +32,21 @@ const Item = ({ item }) => {
         }
         return title;
     };
+
+    const handleDmBtn = (e, product, sellerId) => {
+        e.preventDefault();
+        if (!currentUser) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+        getOrCreateChatRoom(currentUser.uid, sellerId, product, navigate);
+    };
+
     return (
         <div className='flex flex-row  max-h-[150px] rounded-lg shadow-sm'>
             <div className='relative'>
                 <div className='h-full w-[150px] md:w-[200px] lg:w-[250px] overflow-hidden'>
                     {' '}
-                    {/* 화면 크기별로 고정 너비 설정 */}
                     <img
                         src={item.imgs[0].resized}
                         loading='lazy'
@@ -133,27 +93,25 @@ const Item = ({ item }) => {
                             )}
                         </p>
                     </div>
-                    <div className='flex gap-2 h-full items-end '>
-                        <div
-                            className='btn btn-sm'
-                            onClick={(e) => {
-                                e.preventDefault();
-
-                                console.log('ee');
-                            }}>
-                            dm
+                    {currentUser && (
+                        <div className='flex gap-2 h-full items-end '>
+                            <div
+                                className='btn btn-sm'
+                                onClick={(e) => handleDmBtn(e, item, item.uid)}
+                            >
+                                dm
+                            </div>
+                            <div
+                                className='btn btn-sm bg-emerald-100'
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    userLike(item.id, currentUser.uid);
+                                }}
+                            >
+                                찜
+                            </div>
                         </div>
-                        <div
-                            className='btn btn-sm bg-emerald-100'
-                            onClick={(e) => {
-                                e.preventDefault();
-                                userLike(item.id, currentUser.uid);
-
-                                console.log('ee');
-                            }}>
-                            찜
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -44,6 +44,15 @@ export default function DetailPage() {
         setMainImage(imageUrl);
     };
 
+    const handleDmClick = () => {
+        if (!currentUser || !data) return;
+
+        const userIds = [currentUser.uid, data.uid].sort();
+        const chatRoomId = `${id}_${userIds[0]}_${userIds[1]}`;
+        console.log("DetailPage - Generated chatRoomId:", chatRoomId); // 생성된 chatRoomId 확인
+        navigate(`/dm/${chatRoomId}`);
+    };
+
     const handleDelete = async () => {
         if (window.confirm('정말로 이 상품을 삭제하시겠습니까?')) {
             try {
@@ -111,7 +120,7 @@ export default function DetailPage() {
                     </div>
                 </div>
                 {currentUser && data.uid !== currentUser.uid && (
-                    <button className='btn btn-accent'>DM</button>
+                    <button className='btn btn-accent' onClick={handleDmClick}>DM</button>
                 )}
             </div>
 
@@ -141,7 +150,7 @@ export default function DetailPage() {
                     </p>
                 </div>
             </div>
-
+<button onClick={handleDmClick}>디엠</button>
             {/* Action Button */}
             {currentUser && data.uid === currentUser.uid && (
                 <div className='flex justify-end mt-6 gap-2'>

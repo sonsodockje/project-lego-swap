@@ -21,7 +21,7 @@ export default function Header() {
 
             <div className='navbar-center'>
                 <NavLink
-                    to='/message'
+                    to='/dm'
                     className={({ isActive }) =>
                         isActive
                             ? 'text-pink-600 btn btn-ghost'
