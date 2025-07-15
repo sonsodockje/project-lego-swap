@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { deleteProductById, productFetchById } from '../api/firebaseStore';
 import { useAuth } from '../api/firebaseAuth';
 import { useQuery } from '@tanstack/react-query';
+
 import { Link, useParams, useNavigate } from 'react-router-dom';
+
+import Comment from '../components/Comment';
 
 export default function DetailPage() {
     const { id } = useParams();
@@ -149,7 +152,11 @@ export default function DetailPage() {
                         {data.want}
                     </p>
                 </div>
+
+        
             </div>
+
+            
 <button onClick={handleDmClick}>디엠</button>
             {/* Action Button */}
             {currentUser && data.uid === currentUser.uid && (
@@ -166,6 +173,9 @@ export default function DetailPage() {
                     </button>
                 </div>
             )}
+
+            <Comment />
+            
         </div>
     );
 }
