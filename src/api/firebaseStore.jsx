@@ -9,8 +9,6 @@ import {
     getDoc,
     query,
     orderBy,
-    limit,
-    startAfter,
     deleteDoc,
     updateDoc, // updateDoc 임포트 추가
     where, // where 임포트 추가
@@ -141,12 +139,21 @@ export const productUpdate = async (id, data, setIsLoading, navigate) => {
 export const userLike = async (productId, currentUserId) => {
     try {
         const likeDocRef = doc(db, 'user', currentUserId, 'like', productId);
-        await setDoc(likeDocRef, {
-            likedAt: new Date(),
-        });
+        const docSnap = await getDoc(likeDocRef);
 
-        console.log('Document set with ID: ', productId);
-        alert('찜 완료!');
+        if (docSnap.exists()) {
+            // 이미 찜한 경우: 찜 취소 (문서 삭제)
+            await deleteDoc(likeDocRef);
+            console.log('Document successfully deleted!');
+            alert('찜 취소!');
+        } else {
+            // 찜하지 않은 경우: 찜하기 (문서 추가)
+            await setDoc(likeDocRef, {
+                likedAt: new Date(),
+            });
+            console.log('Document set with ID: ', productId);
+            alert('찜 완료!');
+        }
     } catch (e) {
         console.error('Error updating document: ', e);
         alert('찜 오류...~');
@@ -166,24 +173,34 @@ export const readUserLike = async (currentUserId) => {
 
         const likedProductIds = [];
         querySnapshot.forEach((doc) => {
-            likedProductIds.push({ productId: doc.id, likedAt: doc.data().likedAt });
+            likedProductIds.push({
+                productId: doc.id,
+                likedAt: doc.data().likedAt,
+            });
         });
 
         // 각 찜한 상품의 상세 정보를 가져옵니다.
         const likedProductsWithDetails = await Promise.all(
             likedProductIds.map(async (likedItem) => {
-                const productDetail = await productFetchById(likedItem.productId);
-                return productDetail ? { ...productDetail, likedAt: likedItem.likedAt } : null;
-            })
+                const productDetail = await productFetchById(
+                    likedItem.productId,
+                );
+                return productDetail
+                    ? { ...productDetail, likedAt: likedItem.likedAt }
+                    : null;
+            }),
         );
 
         // null 값 필터링 및 likedAt 기준으로 최신순 정렬
         const filteredAndSortedProducts = likedProductsWithDetails
-            .filter(product => product !== null)
+            .filter((product) => product !== null)
             .sort((a, b) => b.likedAt.seconds - a.likedAt.seconds); // likedAt이 Timestamp 객체라고 가정
 
         if (filteredAndSortedProducts.length > 0) {
-            console.log('Liked products data with details:', filteredAndSortedProducts);
+            console.log(
+                'Liked products data with details:',
+                filteredAndSortedProducts,
+            );
             return filteredAndSortedProducts;
         } else {
             console.log('No liked products found!');
@@ -206,7 +223,7 @@ export const fetchUserPosts = async (userId) => {
         const q = query(
             collection(db, 'products'),
             where('uid', '==', userId), // uid 필드가 userId와 일치하는 문서 필터링
-            orderBy('timestamp', 'desc') // 최신순 정렬
+            orderBy('timestamp', 'desc'), // 최신순 정렬
         );
         const querySnapshot = await getDocs(q);
 

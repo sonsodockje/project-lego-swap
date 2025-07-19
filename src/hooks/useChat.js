@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { db } from '../api/firebase';
-import { ref, onValue, push, set, serverTimestamp, update } from 'firebase/database';
+import {
+    ref,
+    onValue,
+    push,
+    set,
+    serverTimestamp,
+    update,
+} from 'firebase/database';
 import { useAuth } from '../api/firebaseAuth';
 
 export function useChat(chatRoomId) {
@@ -14,7 +21,12 @@ export function useChat(chatRoomId) {
         const messagesRef = ref(db, `messages/${chatRoomId}`);
         const unsubscribe = onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
-            const loadedMessages = data ? Object.entries(data).map(([key, value]) => ({ id: key, ...value })) : [];
+            const loadedMessages = data
+                ? Object.entries(data).map(([key, value]) => ({
+                      id: key,
+                      ...value,
+                  }))
+                : [];
             setMessages(loadedMessages);
         });
 

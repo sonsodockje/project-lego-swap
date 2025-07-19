@@ -15,12 +15,12 @@ const handleImageSelection = async (
     // 사진 개수 제한
     const MAX_IMAGES = 4;
 
-    // 1. 사진 파일 배열 만듦. 
+    // 1. 사진 파일 배열 만듦.
     const newImageFiles = Array.from(e.target.files).filter((file) =>
         file.type.startsWith('image/'),
     );
 
-    // 2. 이미지 개수 체크함. 
+    // 2. 이미지 개수 체크함.
     const totalImages = currentSelectedFiles.length + newImageFiles.length;
     if (totalImages > MAX_IMAGES) {
         alert(
@@ -31,7 +31,7 @@ const handleImageSelection = async (
         // 실행취소
     }
 
-    // 3. 리사이징 함수를 실행함. 
+    // 3. 리사이징 함수를 실행함.
     const processedFilesPromises = newImageFiles.map(async (file) => {
         try {
             const big = await resizeImage(file, 980);
@@ -48,7 +48,7 @@ const handleImageSelection = async (
         }
     });
 
-    // 4. 리사이징 실행후 정상적인 것들만 필터함. 
+    // 4. 리사이징 실행후 정상적인 것들만 필터함.
     const processedFiles = (await Promise.all(processedFilesPromises)).filter(
         Boolean,
     );

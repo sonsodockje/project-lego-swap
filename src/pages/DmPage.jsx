@@ -6,13 +6,25 @@ import MessageInput from '../components/MessageInput';
 
 export default function DmPage() {
     const { chatRoomId } = useParams();
-    console.log("DmPage - chatRoomId:", chatRoomId);
+    console.log('DmPage - chatRoomId:', chatRoomId);
 
-    const { messages, newMessage, setNewMessage, handleSendMessage, isSending, messagesEndRef, currentUser } = useChat(chatRoomId);
+    const {
+        messages,
+        newMessage,
+        setNewMessage,
+        handleSendMessage,
+        isSending,
+        messagesEndRef,
+        currentUser,
+    } = useChat(chatRoomId);
 
     return (
-        <div className="flex flex-col h-dvw max-w-lg mx-auto">
-            <MessageList messages={messages} currentUser={currentUser} messagesEndRef={messagesEndRef} />
+        <div className='flex flex-col h-dvw max-w-lg mx-auto'>
+            <MessageList
+                messages={messages}
+                currentUser={currentUser}
+                messagesEndRef={messagesEndRef}
+            />
             <MessageInput
                 newMessage={newMessage}
                 setNewMessage={setNewMessage}

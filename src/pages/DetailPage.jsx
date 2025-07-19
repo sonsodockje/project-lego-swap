@@ -52,7 +52,7 @@ export default function DetailPage() {
 
         const userIds = [currentUser.uid, data.uid].sort();
         const chatRoomId = `${id}_${userIds[0]}_${userIds[1]}`;
-        console.log("DetailPage - Generated chatRoomId:", chatRoomId); // 생성된 chatRoomId 확인
+        console.log('DetailPage - Generated chatRoomId:', chatRoomId); // 생성된 chatRoomId 확인
         navigate(`/dm/${chatRoomId}`);
     };
 
@@ -123,7 +123,9 @@ export default function DetailPage() {
                     </div>
                 </div>
                 {currentUser && data.uid !== currentUser.uid && (
-                    <button className='btn btn-accent' onClick={handleDmClick}>DM</button>
+                    <button className='btn btn-accent' onClick={handleDmClick}>
+                        DM
+                    </button>
                 )}
             </div>
 
@@ -152,12 +154,8 @@ export default function DetailPage() {
                         {data.want}
                     </p>
                 </div>
-
-        
             </div>
 
-            
-<button onClick={handleDmClick}>디엠</button>
             {/* Action Button */}
             {currentUser && data.uid === currentUser.uid && (
                 <div className='flex justify-end mt-6 gap-2'>
@@ -175,7 +173,6 @@ export default function DetailPage() {
             )}
 
             <Comment />
-            
         </div>
     );
 }

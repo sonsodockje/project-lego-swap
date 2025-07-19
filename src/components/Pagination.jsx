@@ -1,6 +1,11 @@
 import React from 'react';
 
-export default function Pagination({ totalItems, itemsPerPage, currentPage, onPageChange }) {
+export default function Pagination({
+    totalItems,
+    itemsPerPage,
+    currentPage,
+    onPageChange,
+}) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const pageNumbers = [];
 
@@ -9,7 +14,7 @@ export default function Pagination({ totalItems, itemsPerPage, currentPage, onPa
     }
 
     return (
-        <div className='join p-6'>
+        <div className='w-full join p-6 flex justify-center'>
             {pageNumbers.map((number) => (
                 <button
                     key={number}

@@ -8,14 +8,13 @@ import DetailPage from '../pages/DetailPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import DmListPage from '../pages/DmListPage';
 
-
 const Router = () => {
     return (
         <Routes>
             <Route element={<Layout />}>
                 <Route index element={<MainPage />} />
                 <Route path='account' element={<MyPage />} />
-    
+
                 <Route path='dm/:chatRoomId' element={<DmPage />} />
                 <Route path='dm' element={<DmListPage />} />
                 <Route path='detail/:id' element={<DetailPage />} />

@@ -26,13 +26,13 @@ export default function MainPage() {
 
     if (isLoading) {
         return (
-            <>
+            <div className='flex m-auto gap-4 f-ull items-center align-middle text-center'>
                 <div className='inline-grid *:[grid-area:1/1]'>
                     <div className='status status-error animate-ping'></div>
                     <div className='status status-error'></div>
-                </div>{' '}
-                loding
-            </>
+                </div>
+                <div>로딩중</div>
+            </div>
         );
     }
 
@@ -41,7 +41,6 @@ export default function MainPage() {
     }
 
     const allProducts = data?.products || [];
-
     const filteredProducts =
         filter && filter !== 'all'
             ? allProducts.filter((item) => item.want === filter)
@@ -50,7 +49,10 @@ export default function MainPage() {
     // 클라이언트 측 페이지네이션
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredProducts.slice(
+        indexOfFirstItem,
+        indexOfLastItem,
+    );
 
     const totalItems = filteredProducts.length; // 필터링된 상품의 총 개수
 
