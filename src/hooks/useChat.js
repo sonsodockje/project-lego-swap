@@ -4,6 +4,7 @@ import {
     ref,
     onValue,
     push,
+    get,
     set,
     serverTimestamp,
     update,
@@ -12,12 +13,31 @@ import { useAuth } from '../api/firebaseAuth';
 
 export function useChat(chatRoomId) {
     const { currentUser } = useAuth();
+
     const [messages, setMessages] = useState([]);
+    const [membersInfo, setMembersInfo] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
+
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
+        const chatInfoRef = ref(db, `chats/${chatRoomId}/memberInfo`);
+        const getMemberData = async () => {
+            try {
+                const snapshot = await get(chatInfoRef);
+                if (snapshot.exists()) {
+                    console.log("스냡삽 : ", snapshot.val());
+                    setMembersInfo(snapshot.val());
+                } else {
+                    console.log('에로ㅓ');
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        // 메시지 저장소
         const messagesRef = ref(db, `messages/${chatRoomId}`);
         const unsubscribe = onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
@@ -30,7 +50,10 @@ export function useChat(chatRoomId) {
             setMessages(loadedMessages);
         });
 
-        return () => unsubscribe();
+        return () => {
+            getMemberData();
+            unsubscribe();
+        };
     }, [chatRoomId]);
 
     useEffect(() => {
@@ -66,6 +89,7 @@ export function useChat(chatRoomId) {
 
     return {
         messages,
+        membersInfo,
         newMessage,
         setNewMessage,
         handleSendMessage,
