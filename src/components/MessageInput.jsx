@@ -7,7 +7,7 @@ export default function MessageInput({
     isSending,
 }) {
     return (
-        <form onSubmit={handleSendMessage} className='flex p-4 border-t'>
+        <form onSubmit={handleSendMessage} className='flex p-4 '>
             <input
                 type='text'
                 value={newMessage}

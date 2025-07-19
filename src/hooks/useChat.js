@@ -4,7 +4,6 @@ import {
     ref,
     onValue,
     push,
-    get,
     set,
     serverTimestamp,
     update,
@@ -16,6 +15,7 @@ export function useChat(chatRoomId) {
 
     const [messages, setMessages] = useState([]);
     const [membersInfo, setMembersInfo] = useState([]);
+    const [chatRoomName, setChatRoomName] = useState("");
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
 
@@ -23,19 +23,22 @@ export function useChat(chatRoomId) {
 
     useEffect(() => {
         const chatInfoRef = ref(db, `chats/${chatRoomId}/memberInfo`);
-        const getMemberData = async () => {
-            try {
-                const snapshot = await get(chatInfoRef);
-                if (snapshot.exists()) {
-                    console.log("스냡삽 : ", snapshot.val());
-                    setMembersInfo(snapshot.val());
-                } else {
-                    console.log('에로ㅓ');
-                }
-            } catch (error) {
-                console.log(error);
+        const unsubscribeMembers = onValue(chatInfoRef, (snapshot) => {
+            if (snapshot.exists()) {
+                setMembersInfo(snapshot.val());
+            } else {
+                console.log('No member info found.');
             }
-        };
+        });
+
+        const chatroomnameref = ref(db, `chats/${chatRoomId}/chatRoomName`);
+        const unsubscribeRoomName = onValue(chatroomnameref, (snapshot) => {
+            if (snapshot.exists()) {
+                setChatRoomName(snapshot.val());
+            } else {
+                console.log('No member info found.');
+            }
+        });
 
         // 메시지 저장소
         const messagesRef = ref(db, `messages/${chatRoomId}`);
@@ -51,8 +54,9 @@ export function useChat(chatRoomId) {
         });
 
         return () => {
-            getMemberData();
+            unsubscribeMembers();
             unsubscribe();
+            unsubscribeRoomName();
         };
     }, [chatRoomId]);
 
@@ -88,6 +92,7 @@ export function useChat(chatRoomId) {
     };
 
     return {
+        chatRoomName,
         messages,
         membersInfo,
         newMessage,
