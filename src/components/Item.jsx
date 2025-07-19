@@ -43,7 +43,7 @@ const Item = ({ item }) => {
                 alert('로그인이 필요합니다.');
                 return;
             }
-            handleOpenChatRoom(currentUser.uid, item.uid, item, navigate);
+            handleOpenChatRoom(currentUser, item, navigate);
         },
         [currentUser, item, navigate],
     );

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
 import Comment from '../components/Comment';
+import { handleOpenChatRoom } from '@/api/firebaseRealtime';
 
 export default function DetailPage() {
     const { id } = useParams();
@@ -47,14 +48,17 @@ export default function DetailPage() {
         setMainImage(imageUrl);
     };
 
-    const handleDmClick = () => {
-        if (!currentUser || !data) return;
 
-        const userIds = [currentUser.uid, data.uid].sort();
-        const chatRoomId = `${id}_${userIds[0]}_${userIds[1]}`;
-        console.log('DetailPage - Generated chatRoomId:', chatRoomId); // 생성된 chatRoomId 확인
-        navigate(`/dm/${chatRoomId}`);
+    const handleDmClick = () => {
+            handleOpenChatRoom(currentUser, data, navigate)
     };
+
+        // if (!currentUser || !data) return;
+        // const userIds = [currentUser.uid, data.uid].sort();
+        // const chatRoomId = `${id}_${userIds[0]}_${userIds[1]}`;
+        // console.log('DetailPage - Generated chatRoomId:', chatRoomId); // 생성된 chatRoomId 확인
+        // navigate(`/dm/${chatRoomId}`);
+    
 
     const handleDelete = async () => {
         if (window.confirm('정말로 이 상품을 삭제하시겠습니까?')) {
