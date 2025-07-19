@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { deleteProductById, productFetchById } from '../api/firebaseStore';
-import { useAuth } from '../api/firebaseAuth';
+import { deleteProductById, productFetchById } from '@/api/firebaseStore';
+import { useAuth } from '@/api/firebaseAuth';
 import { useQuery } from '@tanstack/react-query';
 
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
-import Comment from '../components/Comment';
+import Comment from '@/components/Comment';
 import { handleOpenChatRoom } from '@/api/firebaseRealtime';
 
 export default function DetailPage() {
@@ -48,17 +48,15 @@ export default function DetailPage() {
         setMainImage(imageUrl);
     };
 
-
     const handleDmClick = () => {
-            handleOpenChatRoom(currentUser, data, navigate)
+        handleOpenChatRoom(currentUser, data, navigate);
     };
 
-        // if (!currentUser || !data) return;
-        // const userIds = [currentUser.uid, data.uid].sort();
-        // const chatRoomId = `${id}_${userIds[0]}_${userIds[1]}`;
-        // console.log('DetailPage - Generated chatRoomId:', chatRoomId); // 생성된 chatRoomId 확인
-        // navigate(`/dm/${chatRoomId}`);
-    
+    // if (!currentUser || !data) return;
+    // const userIds = [currentUser.uid, data.uid].sort();
+    // const chatRoomId = `${id}_${userIds[0]}_${userIds[1]}`;
+    // console.log('DetailPage - Generated chatRoomId:', chatRoomId); // 생성된 chatRoomId 확인
+    // navigate(`/dm/${chatRoomId}`);
 
     const handleDelete = async () => {
         if (window.confirm('정말로 이 상품을 삭제하시겠습니까?')) {
@@ -74,7 +72,7 @@ export default function DetailPage() {
     };
 
     return (
-        <div className='container mx-auto p-4 bg-white rounded-lg shadow-md'>
+        <div className='h-full'>
             <h1 className='text-3xl font-bold mb-4 text-gray-800'>
                 {data.title}
             </h1>
@@ -126,16 +124,19 @@ export default function DetailPage() {
                         </p>
                     </div>
                 </div>
-                {currentUser && data.uid !== currentUser.uid && (
+                {currentUser && data.uid !== currentUser.uid && (<>
                     <button className='btn btn-accent' onClick={handleDmClick}>
                         DM
                     </button>
+                </>
+                
+                    
                 )}
             </div>
 
             {/* Product Details */}
-            <div className='mb-4'>
-                <p className='text-gray-700 text-lg leading-relaxed mb-4'>
+            <div className='my-4'>
+                <p className='text-gray-700 text-lg leading-relaxed mb-12'>
                     {data.body}
                 </p>
                 <div className='grid grid-cols-2 gap-2 text-gray-600 text-sm'>
@@ -165,11 +166,11 @@ export default function DetailPage() {
                 <div className='flex justify-end mt-6 gap-2'>
                     <Link
                         to={`/write/${id}`}
-                        className='btn btn-primary px-6 py-2 rounded-md text-white font-semibold'>
+                        className='btn btn-primary px-6 py-2 rounded-md btn-sm text-white font-semibold'>
                         수정하기
                     </Link>
                     <button
-                        className='btn btn-error px-6 py-2 rounded-md text-white font-semibold'
+                        className='btn btn-error px-6 py-2 rounded-md btn-sm text-white font-semibold'
                         onClick={handleDelete}>
                         삭제하기
                     </button>

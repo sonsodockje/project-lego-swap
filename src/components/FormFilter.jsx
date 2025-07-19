@@ -26,7 +26,7 @@ const FormFilter = ({ type, setFormData }) => {
                     }));
                 }}>
                 <option disabled selected value=''>
-                    선택하시게나
+                    팀을 선택하세요.
                 </option>
                 {list.map((item) => (
                     <option key={item} value={item}>

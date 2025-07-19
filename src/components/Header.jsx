@@ -5,18 +5,23 @@ import { NavLink, Link } from 'react-router-dom';
 
 export default function Header() {
     return (
-        <div className='navbar bg-base-100 border-b-2 border-b-gray-50 '>
+        <div className='w-full navbar bg-base-100 border-b-base-300 border-b-1 '>
             <div className='navbar-start'>
-                <Link to='/' className='btn btn-ghost text-sm'>
+                <NavLink to='/'
+                 className={({ isActive }) =>
+                        isActive
+                ? 'text-fuchsia-700 btn btn-ghost'
+                            : 'text-black btn btn-ghost'
+                    }>
                     <svg
                         xmlns='http://www.w3.org/2000/svg'
                         height='24px'
                         viewBox='0 -960 960 960'
                         width='24px'
-                        fill='#1f1f1f'>
+                        fill='currentColor'>
                         <path d='M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z' />
                     </svg>
-                </Link>
+                </NavLink>
             </div>
 
             <div className='navbar-center'>
@@ -24,7 +29,7 @@ export default function Header() {
                     to='/dm'
                     className={({ isActive }) =>
                         isActive
-                            ? 'text-pink-600 btn btn-ghost'
+                            ? 'text-fuchsia-700 btn btn-ghost'
                             : 'text-black btn btn-ghost'
                     }>
                     <svg

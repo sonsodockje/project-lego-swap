@@ -298,7 +298,7 @@ export default function WriteForm({ currentUser, id, initialData }) {
 
                 <section>
                     <textarea
-                        className='textarea validator w-full resize-none'
+                        className='textarea validator w-full resize-none rounded-lg'
                         placeholder='설명을 작성해주세요.'
                         minLength='2'
                         required
@@ -335,6 +335,7 @@ export default function WriteForm({ currentUser, id, initialData }) {
                 </div>
                 <p className='validator-hint '>상품 가격을 입력해주세요.</p>
                 <section>
+
                     <p>판매팀</p>
                     <FormFilter type='sell' setFormData={setFormData} />
                     <p>희망팀</p>
@@ -348,7 +349,7 @@ export default function WriteForm({ currentUser, id, initialData }) {
                         취소
                     </button>
                     <button
-                        className='btn'
+                        className='btn btn-accent'
                         type='submit'
                         disabled={isLoading} // 로딩 중일 때 제출 버튼 비활성화
                     >

@@ -2,13 +2,41 @@ import React, { memo, useCallback } from 'react';
 import { userLike } from '../api/firebaseStore';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../api/firebaseAuth';
-import { handleOpenChatRoom } from '../api/firebaseRealtime';
 import { readUserLike } from '../api/firebaseStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
+// --- SVG Icons ---
+const HeartIcon = ({ className, ...props }) => (
+    <svg
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+        viewBox='0 0 24 24'
+        fill='currentColor'
+        {...props}>
+        <path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' />
+    </svg>
+);
+
+const CommentIcon = ({ className, ...props }) => (
+    <svg
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+        fill='none'
+        viewBox='0 0 24 24'
+        stroke='currentColor'
+        strokeWidth={2}
+        {...props}>
+        <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
+        />
+    </svg>
+);
+
 const truncateTitle = (title) => {
-    if (title.length > 14) {
-        return title.substring(0, 14) + '...';
+    if (title.length > 20) {
+        return title.substring(0, 20) + '...';
     }
     return title;
 };
@@ -16,45 +44,27 @@ const truncateTitle = (title) => {
 const Item = ({ item }) => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    // 나의 찜 데이터 가져오기
-    // useQuery의 data는 초기값으로 undefined를 가집니다.
-    // 데이터 로딩 중이거나 쿼리가 실행되지 않았을 때 likedProducts는 undefined입니다.
     const { data: likedProducts, isLoading } = useQuery({
-        // isLoading, isError 추가
         queryKey: ['likedProducts', currentUser?.uid],
         queryFn: () => readUserLike(currentUser.uid),
         enabled: !!currentUser?.uid,
-        staleTime: 1000 * 60 * 5, // 5분 동안 캐시된 데이터를 신선하다고 간주
-        cacheTime: 1000 * 60 * 10, // 10분 동안 캐시 데이터 유지
+        staleTime: 1000 * 60 * 5,
+        cacheTime: 1000 * 60 * 10,
     });
 
-    // 현재 아이템이 사용자의 찜 목록에 포함되어 있는지 확인하는 헬퍼 변수
     const isItemLiked =
         !isLoading &&
         likedProducts &&
         likedProducts.some((product) => product.id === item.id);
 
-    // useCallback을 사용하여 handleDmBtn 함수 메모이제이션
-    const handleDmBtn = useCallback(
-        (e) => {
-            e.preventDefault();
-            if (!currentUser) {
-                alert('로그인이 필요합니다.');
-                return;
-            }
-            handleOpenChatRoom(currentUser, item, navigate);
-        },
-        [currentUser, item, navigate],
-    );
-
-    // useCallback을 사용하여 찜하기 버튼의 onClick 핸들러 메모이제이션
-    const queryClient = useQueryClient();
-
-    // useCallback을 사용하여 찜하기 버튼의 onClick 핸들러 메모이제이션
     const handleLikeBtn = useCallback(
-        async (e) => {
-            e.preventDefault();
+        async () => {
+            
+            
+            
+
             if (!currentUser) {
                 alert('로그인이 필요합니다.');
                 return;
@@ -65,15 +75,12 @@ const Item = ({ item }) => {
                 currentUser.uid,
             ]);
 
-            // Optimistic update
             if (isItemLiked) {
-                // 찜 취소: 캐시에서 해당 아이템 제거
                 queryClient.setQueryData(
                     ['likedProducts', currentUser.uid],
                     (old) => old.filter((product) => product.id !== item.id),
                 );
             } else {
-                // 찜하기: 캐시에 해당 아이템 추가 (임시 likedAt 값 사용)
                 queryClient.setQueryData(
                     ['likedProducts', currentUser.uid],
                     (old) => [
@@ -86,7 +93,6 @@ const Item = ({ item }) => {
             try {
                 await userLike(item.id, currentUser.uid);
             } catch (error) {
-                // Rollback on error
                 queryClient.setQueryData(
                     ['likedProducts', currentUser.uid],
                     previousLikedProducts,
@@ -98,70 +104,100 @@ const Item = ({ item }) => {
         [item.id, currentUser, isItemLiked, queryClient],
     );
 
+    const handleItemClick = () => {
+        navigate(`/detail/${item.id}`);
+    };
+
     return (
-        <div className='flex flex-row max-h-[150px] rounded-lg shadow-sm'>
-            <div className='relative'>
-                <div className='h-full w-[150px] md:w-[200px] lg:w-[250px] overflow-hidden'>
+        <div
+            onClick={handleItemClick}
+            className='bg-base-100 rounded-lg shadow-md overflow-hidden hover:bg-base-200 duration-500 cursor-pointer flex flex-row'>
+            {/* Image Section */}
+            <div className='relative w-32 sm:w-36 flex-shrink-0'>
+                <div className='aspect-square w-full h-full'>
                     <img
                         src={item.imgs[0].resized}
                         loading='lazy'
-                        className='object-cover rounded-tl-lg rounded-bl-lg w-full h-full'
-                        alt={item.title} // 이미지 alt 속성 추가
+                        className='w-full h-full object-cover'
+                        alt={item.title}
                     />
                 </div>
-
-                <div className='absolute bottom-0 flex items-center gap-2 bg-black opacity-70 rounded-md m-2 p-1'>
+                <div className='absolute bottom-1 left-1 flex items-center gap-1 bg-black bg-opacity-50 rounded-full p-1 pr-2'>
                     <img
                         src={item.userPhoto}
-                        className='rounded-full w-4 h-4'
-                        alt={`${item.user} profile`} // 이미지 alt 속성 추가
+                        className='rounded-full w-5 h-5'
+                        alt={`${item.user} profile`}
                     />
-                    <p className='text-white text-xs'>{item.user}</p>
+                    <p className='text-white text-xs font-semibold'>
+                        {item.user}
+                    </p>
                 </div>
             </div>
 
-            <div className='flex flex-col w-full px-4 py-2 gap-1 items-start'>
-                <h2 className='font-semibold text-[1.1rem]'>
+            {/* Content Section */}
+            <div className='p-3 flex flex-col flex-grow'>
+                <div className='flex flex-wrap gap-1 mb-2'>
+                    <span
+                        className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                            item.opened === 0
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-green-100 text-green-800'
+                        }`}>
+                        {item.opened === 0 ? '개봉' : '미개봉'}
+                    </span>
+                    <span className='px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800'>
+                        {item.sell}
+                    </span>
+
+                    <span className='px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-800'>
+                        {item.want}
+                    </span>
+                </div>
+
+                <h2
+                    className='text-base font-bold text-gray-800 leading-tight'
+                    title={item.title}>
                     {truncateTitle(item.title)}
                 </h2>
-                <div className='flex gap-2 text-[.6rem] font-semibold text-white mb-4 justify-center items-center'>
-                    <div className='py-[4px] px-[6px] rounded-full bg-red-400'>
-                        {item.sell}
-                    </div>
-                    <p className='text-gray-500'>을</p>
-                    <div className='py-1 px-2 rounded-full bg-blue-400'>
-                        {item.want}
-                    </div>
-                    <p className='text-gray-500'>로 교환합니다.</p>
-                </div>
-                <div className='flex flex-row justify-between items-center w-full'>
-                    <div className=''>
-                        <p className='text-lg font-bold'>${item.price}</p>
-                        <p>
-                            {item.opened === 0 ? (
-                                <span className='text-red-500 font-semibold text-sm'>
-                                    개봉
-                                </span>
-                            ) : (
-                                <span className='text-green-500 font-semibold text-sm'>
-                                    미개봉
-                                </span>
-                            )}
-                        </p>
-                    </div>
-                    {currentUser && (
-                        <div className='flex gap-2 h-full items-end '>
-                            <div className='btn btn-sm' onClick={handleDmBtn}>
-                                DM
-                            </div>
 
-                            {/* isItemLiked 변수를 사용하여 조건부 렌더링 */}
-                            <div
-                                className={`btn btn-sm ${isItemLiked ? 'bg-red-100' : 'bg-emerald-100'}`}
-                                onClick={handleLikeBtn}>
-                                찜
-                            </div>
-                        </div>
+                <p className='mt-1 text-lg font-bold text-gray-900'>
+                    {item.price.toLocaleString()} 원
+                </p>
+
+                {/* Spacer to push stats to the bottom */}
+                <div className='flex-grow' />
+
+                {/* Stats and Like Button */}
+                <div className='mt-2 flex justify-between items-center'>
+                    <div className='flex items-center gap-3 text-gray-500'>
+                        {/* <span className='flex items-center gap-1'>
+                            <HeartIcon className='w-4 h-4' />
+                            <span className='text-xs'>
+                                {item.likeCount || 0}
+                            </span>
+                        </span>
+                        <span className='flex items-center gap-1'>
+                            <CommentIcon className='w-4 h-4' />
+                            <span className='text-xs'>
+                                {item.commentCount || 0}
+                            </span>
+                        </span> */}
+                    </div>
+
+                    {currentUser && (
+                        <button
+                            onClick={(e)=>{
+                                e.stopPropagation()
+                                e.preventDefault()
+                                handleLikeBtn()}}
+                            className={`p-2 rounded-full transition-colors duration-200 hover:cursor-pointer ${
+                                isItemLiked
+                                    ? 'text-red-500 bg-red-100'
+                                    : 'text-gray-400 hover:bg-gray-100'
+                            }`}
+                            aria-label='찜하기'>
+                            <HeartIcon className='w-5 h-5' />
+                        </button>
                     )}
                 </div>
             </div>

@@ -56,15 +56,19 @@ export default function MyPage() {
                     />
                 )}
                 <div>
-                    <h1 className='text-2xl font-bold text-gray-800'>
+                    <div className="flex gap-2 items-center justify-between">
+                            <h1 className='text-2xl font-bold text-gray-800'>
                         {currentUser.displayName}
                     </h1>
+                        <button className='btn btn-xs text-xs btn-accent' onClick={handleLogout}>
+                    로그아웃
+                </button>
+                    </div>
+                
                     <p className='text-gray-600'>{currentUser.email}</p>
                 </div>
 
-                <button className='btn btn-sm btn-error' onClick={handleLogout}>
-                    로그아웃
-                </button>
+                
             </div>
 
             <div className='tabs tabs-boxed mb-6'>

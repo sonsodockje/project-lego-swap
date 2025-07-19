@@ -5,15 +5,12 @@ import { ref, onValue } from 'firebase/database';
 import { Link } from 'react-router-dom';
 import DmListItem from '../components/DmListItem';
 
-
 export default function DmListPage() {
     const { currentUser } = useAuth();
     const [chatRooms, setChatRooms] = useState([]);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    
 
     useEffect(() => {
         if (!currentUser) {
@@ -29,17 +26,15 @@ export default function DmListPage() {
             (snapshot) => {
                 const data = snapshot.val();
 
-                console.log(data)
+                console.log(data);
 
                 if (data) {
-                    
                     const loadedChatRooms = Object.entries(data)
                         .map(([chatRoomId, chatRoomData]) => ({
                             id: chatRoomId,
                             ...chatRoomData,
                         }))
                         .filter((chatRoom) => {
-                        
                             const parts = chatRoom.id.split('_');
 
                             console.log('Parts:', parts);
@@ -48,7 +43,7 @@ export default function DmListPage() {
                                 const user2Id = parts[2];
 
                                 const isParticipant =
-                                    user1Id === currentUser.uid || 
+                                    user1Id === currentUser.uid ||
                                     user2Id === currentUser.uid;
                                 return isParticipant;
                             }
@@ -56,11 +51,11 @@ export default function DmListPage() {
                         });
                     // 마지막 메시지 시간(lastTimestamp)을 기준으로 정렬 (최신순)
                     loadedChatRooms.sort((a, b) => {
-                        const timeA = a.lastTimestamp || 0; 
-                        const timeB = b.lastTimestamp || 0; 
+                        const timeA = a.lastTimestamp || 0;
+                        const timeB = b.lastTimestamp || 0;
                         return timeB - timeA; // 내림차순 정렬 (최신 메시지가 위로)
                     });
-                    
+
                     setChatRooms(loadedChatRooms);
                 }
                 setLoading(false);
@@ -96,11 +91,15 @@ export default function DmListPage() {
     }
 
     return (
-        <div className='container mx-auto p-4'>
-            <h1 className='text-2xl font-bold mb-4'>내 DM 목록</h1>
-            <div className='space-y-4'>
+        <div className='p-1 h-full'>
+            <h1 className='text-2xl font-bold mb-4'>DM 목록</h1>
+            <div className='flex flex-col '>
                 {chatRooms.map((chatRoom) => (
-                    <DmListItem key={chatRoom.id} chatRoom={chatRoom} currentUser={currentUser} />
+                    <DmListItem
+                        key={chatRoom.id}
+                        chatRoom={chatRoom}
+                        currentUser={currentUser}
+                    />
                 ))}
             </div>
         </div>

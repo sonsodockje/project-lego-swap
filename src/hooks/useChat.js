@@ -15,7 +15,7 @@ export function useChat(chatRoomId) {
 
     const [messages, setMessages] = useState([]);
     const [membersInfo, setMembersInfo] = useState([]);
-    const [chatRoomName, setChatRoomName] = useState("");
+    const [chatRoomName, setChatRoomName] = useState('');
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
 

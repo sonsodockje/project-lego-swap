@@ -42,7 +42,7 @@ export default function MyPostItem({ post, currentUser }) {
             to={`/detail/${post.id}`}
             key={post.id}
             className='block p-4 border rounded-lg shadow-sm hover:bg-gray-50'>
-            <h3 className='text-lg font-semibold'>{post.title}</h3>
+            <h3 className='text-md font-semibold'>{post.title}</h3>
             <p className='text-gray-600 text-sm'>
                 {new Date(post.timestamp.seconds * 1000).toLocaleDateString()}
             </p>
@@ -54,7 +54,7 @@ export default function MyPostItem({ post, currentUser }) {
                 />
             )}
             <button
-                className='p-2 btn btn-error mt-2'
+                className='p-2 btn btn-primary  mt-2 btn-xs text-xs'
                 onClick={handleDeletePost}>
                 삭제
             </button>

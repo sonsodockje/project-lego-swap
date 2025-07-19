@@ -4,9 +4,9 @@ import { Outlet } from 'react-router-dom';
 
 export default function Layout() {
     return (
-        <div className='max-w-[600px] min-h-svh m-auto shadow-sm  hide-scrollbar'>
+        <div className='min-w-[300px] max-w-screen-sm mx-auto  h-full py-5 sm:py-1 shadow-sm hide-scrollbar'>
             <Header />
-            <div className='container mx-auto p-4'>
+            <div className='p-4'>
                 <Outlet />
             </div>
         </div>

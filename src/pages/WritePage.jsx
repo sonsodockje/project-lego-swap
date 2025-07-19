@@ -40,7 +40,7 @@ export default function WritePage() {
 
     return (
         <>
-            {id && <p>현재 수정 글 ID: {id} // 이 글을 쓴 사람 정보 </p>}{' '}
+            {/* {id && <p>현재 수정 글 ID: {id} // 이 글을 쓴 사람 정보 </p>}{' '} */}
             {/* id 값을 표시할 때 좀 더 명확하게 */}
             <WriteForm
                 currentUser={currentUser}

@@ -1,10 +1,18 @@
 import React from 'react';
 
-export default function MessageList({ otherInfo, messages, currentUser, messagesEndRef }) {
+export default function MessageList({
+    otherInfo,
+    messages,
+    currentUser,
+    messagesEndRef,
+}) {
     const formatTimestamp = (timestamp) => {
         if (!timestamp) return '';
         const date = new Date(timestamp);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
     };
 
     return (
@@ -13,17 +21,18 @@ export default function MessageList({ otherInfo, messages, currentUser, messages
                 <div
                     key={msg.id}
                     className={`chat ${msg.senderId === currentUser?.uid ? 'chat-end' : 'chat-start'}`}>
-                    <div className="chat-image avatar">
+                    <div className='chat-image avatar'>
                         {msg.senderId !== currentUser?.uid && (
-                            <div className="w-10 rounded-full">
-                                <img src={otherInfo.img} alt="Profile" />
+                            <div className='w-10 rounded-full'>
+                                <img src={otherInfo.img} alt='Profile' />
                             </div>
                         )}
                     </div>
-                    <div className={`chat-bubble ${msg.senderId === currentUser?.uid ? 'chat-bubble-primary' : ''}`}>
+                    <div
+                        className={`chat-bubble ${msg.senderId === currentUser?.uid ? 'chat-bubble-primary' : ''}`}>
                         {msg.text}
                     </div>
-                    <div className="chat-footer opacity-50">
+                    <div className='chat-footer opacity-50'>
                         {formatTimestamp(msg.timestamp)}
                     </div>
                 </div>

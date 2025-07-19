@@ -42,10 +42,7 @@ export default function MyLikedItem({ product, currentUser }) {
             to={`/detail/${product.id}`}
             key={product.id}
             className='block p-4 border rounded-lg shadow-sm hover:bg-gray-50'>
-            <h3 className='text-lg font-semibold'>{product.title}</h3>
-            <button className='p-4 btn btn-error' onClick={handleUnlike}>
-                삭제
-            </button>
+            <h3 className='text-md font-semibold'>{product.title}</h3>
             <p className='text-gray-600 text-sm'>
                 찜한 시간:{' '}
                 {new Date(product.likedAt.seconds * 1000).toLocaleString()}
@@ -57,6 +54,9 @@ export default function MyLikedItem({ product, currentUser }) {
                     className='w-24 h-24 object-cover rounded-md mt-2'
                 />
             )}
+            <button     className='p-2 btn btn-primary  mt-2 btn-xs text-xs' onClick={handleUnlike}>
+                삭제
+            </button>
         </Link>
     );
 }
