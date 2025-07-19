@@ -34,7 +34,7 @@ export default function DmListItem({ chatRoom, currentUser }) {
                             <img
                                 src={otherMember.img || ''}
                                 alt={otherMember.name || 'User'}
-                                className='w-5 h-5 rounded-full object-cover border-2 border-gray-300'
+                                className='w-5 h-5 rounded-full object-cover'
                             />
                             <p className='text-white text-xs font-semibold'>
                                 {otherMember.name || '상대방'}

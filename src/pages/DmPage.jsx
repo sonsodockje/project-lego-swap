@@ -39,35 +39,19 @@ export default function DmPage() {
     }
 
     return (
-        <div className='flex flex-col max-w-lg mx-auto h-[800px]'>
-            <div className='flex items-center w-full'>
-                <button
-                    onClick={() => navigate(-1)}
-                    className='btn btn-ghost btn-circle'>
-                    <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        strokeWidth={1.5}
-                        stroke='currentColor'
-                        className='w-6 h-6'>
-                        <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            d='M15.75 19.5L8.25 12l7.5-7.5'
-                        />
-                    </svg>
-                </button>
+        <div className='flex flex-col max-w-lg mx-auto h-[calc(100lvh-110px)] overflow-none'>
+            <div className='flex justify-center pb-2 items-center w-full'>
                 <div className='avatar items-center ml-4'>
-                    {/* <div className="w-10 h-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                        <img src={otherPersonInfo.img} alt="Profile" />
-                    </div> */}
+                    <div className='w-5 h-5 rounded-full '>
+                        <img src={otherPersonInfo.img} alt='Profile' />
+                    </div>
                 </div>
                 <h1 className='text-xl font-bold ml-4'>
                     {otherPersonInfo.name}
                 </h1>
                 <h1 className='text-xl font-bold ml-4'>{chatRoomName}</h1>
             </div>
+
             <MessageList
                 otherInfo={otherPersonInfo}
                 messages={messages}
