@@ -117,7 +117,7 @@ const Item = ({ item }) => {
                         className='rounded-full w-5 h-5'
                         alt={`${item.user} profile`}
                     />
-                    <p className='text-base-content text-xs font-semibold'>
+                    <p className='text-neutral-content text-xs font-semibold'>
                         {item.user}
                     </p>
                 </div>
