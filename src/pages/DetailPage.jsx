@@ -73,7 +73,7 @@ export default function DetailPage() {
 
     return (
         <div className='h-full'>
-            <h1 className='text-3xl font-bold mb-4 text-gray-800'>
+            <h1 className='text-3xl font-bold mb-4 text-base-content'>
                 {data.title}
             </h1>
 
@@ -114,10 +114,10 @@ export default function DetailPage() {
                         />
                     )}
                     <div>
-                        <p className='font-semibold text-lg text-gray-700'>
+                        <p className='font-semibold text-lg text-base-content'>
                             {data.user}
                         </p>
-                        <p className='text-sm text-gray-500'>
+                        <p className='text-sm text-base-content'>
                             {new Date(
                                 data.timestamp.seconds * 1000,
                             ).toLocaleDateString()}
@@ -137,10 +137,10 @@ export default function DetailPage() {
 
             {/* Product Details */}
             <div className='my-4'>
-                <p className='text-gray-700 text-lg leading-relaxed mb-12'>
+                <p className='text-base-content text-lg leading-relaxed mb-12'>
                     {data.body}
                 </p>
-                <div className='grid grid-cols-2 gap-2 text-gray-600 text-sm'>
+                <div className='grid grid-cols-2 gap-2 text-base-content text-sm'>
                     <p>
                         <span className='font-semibold'>가격:</span>{' '}
                         <span className=''>

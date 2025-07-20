@@ -102,7 +102,6 @@ const Item = ({ item }) => {
         <div
             onClick={handleItemClick}
             className='bg-base-100 rounded-lg shadow-md overflow-hidden hover:bg-base-200 duration-500 cursor-pointer flex flex-row'>
-            {/* Image Section */}
             <div className='relative w-32 sm:w-36 flex-shrink-0'>
                 <div className='aspect-square w-full h-full'>
                     <img
@@ -118,7 +117,7 @@ const Item = ({ item }) => {
                         className='rounded-full w-5 h-5'
                         alt={`${item.user} profile`}
                     />
-                    <p className='text-white text-xs font-semibold'>
+                    <p className='text-base-content text-xs font-semibold'>
                         {item.user}
                     </p>
                 </div>
@@ -145,12 +144,12 @@ const Item = ({ item }) => {
                 </div>
 
                 <h2
-                    className='text-base font-bold text-gray-800 leading-tight'
+                    className='text-base font-bold text-base-content leading-tight'
                     title={item.title}>
                     {truncateTitle(item.title)}
                 </h2>
 
-                <p className='mt-1 text-lg font-bold text-gray-900'>
+                <p className='mt-1 text-lg font-bold text-base-content'>
                     {item.price.toLocaleString()} 원
                 </p>
 

@@ -41,7 +41,7 @@ export default function MyPostItem({ post, currentUser }) {
         <Link
             to={`/detail/${post.id}`}
             key={post.id}
-            className='block p-4 border rounded-lg shadow-sm hover:bg-gray-50'>
+            className='block p-4 border rounded-lg shadow-sm hover:bg-base-200'>
             <h3 className='text-md font-semibold'>{post.title}</h3>
             <p className='text-gray-600 text-sm'>
                 {new Date(post.timestamp.seconds * 1000).toLocaleDateString()}

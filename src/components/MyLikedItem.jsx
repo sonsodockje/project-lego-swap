@@ -41,7 +41,7 @@ export default function MyLikedItem({ product, currentUser }) {
         <Link
             to={`/detail/${product.id}`}
             key={product.id}
-            className='block p-4 border rounded-lg shadow-sm hover:bg-gray-50'>
+            className='block p-4 border rounded-lg shadow-sm hover:bg-base-200'>
             <h3 className='text-md font-semibold'>{product.title}</h3>
             <p className='text-gray-600 text-sm'>
                 찜한 시간:{' '}

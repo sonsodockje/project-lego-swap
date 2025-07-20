@@ -2,16 +2,20 @@ import React from 'react';
 import UserInfoCard from './UserInfoCard';
 import AuthButton from './AuthButton';
 import { NavLink, Link } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function Header() {
+    const { toggleTheme } = useTheme();
+
     return (
         <div className='w-full navbar bg-base-100 border-b-base-300 border-b-1 '>
             <div className='navbar-start'>
-                <NavLink to='/'
-                 className={({ isActive }) =>
+                <NavLink
+                    to='/'
+                    className={({ isActive }) =>
                         isActive
-                ? 'text-fuchsia-700 btn btn-ghost'
-                            : 'text-black btn btn-ghost'
+                            ? 'text-fuchsia-700 btn btn-ghost'
+                            : 'text-base-content btn btn-ghost'
                     }>
                     <svg
                         xmlns='http://www.w3.org/2000/svg'
@@ -30,7 +34,7 @@ export default function Header() {
                     className={({ isActive }) =>
                         isActive
                             ? 'text-fuchsia-700 btn btn-ghost'
-                            : 'text-black btn btn-ghost'
+                            : 'text-base-content btn btn-ghost'
                     }>
                     <svg
                         xmlns='http://www.w3.org/2000/svg'
@@ -42,7 +46,12 @@ export default function Header() {
                     </svg>
                 </NavLink>
             </div>
-
+            <input
+                type='checkbox'
+                value='synthwave'
+                className='toggle toggle-sm theme-controller'
+                onClick={toggleTheme}
+            />
             <div className='navbar-end flex gap-2'>
                 <UserInfoCard />
                 <AuthButton />

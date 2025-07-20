@@ -46,7 +46,7 @@ export default function MyPage() {
 
     return (
         <div className='container mx-auto p-4'>
-             <div className='flex items-center mb-6 p-4 bg-base-200 rounded-lg shadow-sm'>  
+            <div className='flex items-center mb-6 p-4 bg-base-200 rounded-lg shadow-sm'>
                 {currentUser.photoURL && (
                     <img
                         src={currentUser.photoURL}
@@ -56,7 +56,7 @@ export default function MyPage() {
                 )}
                 <div>
                     <div className='flex gap-2 items-center justify-between'>
-                        <h1 className='text-2xl font-bold text-gray-800'>
+                        <h1 className='text-2xl font-bold text-base-content'>
                             {currentUser.displayName}
                         </h1>
                         <button

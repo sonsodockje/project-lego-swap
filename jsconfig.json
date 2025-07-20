@@ -3,7 +3,9 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"]
-        }
+        },
+        "moduleResolution": "Node",
+        "module": "CommonJS"
     },
     "exclude": ["node_modules", "dist"]
 }
