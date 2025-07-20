@@ -124,13 +124,14 @@ export default function DetailPage() {
                         </p>
                     </div>
                 </div>
-                {currentUser && data.uid !== currentUser.uid && (<>
-                    <button className='btn btn-accent' onClick={handleDmClick}>
-                        DM
-                    </button>
-                </>
-                
-                    
+                {currentUser && data.uid !== currentUser.uid && (
+                    <>
+                        <button
+                            className='btn btn-accent'
+                            onClick={handleDmClick}>
+                            DM
+                        </button>
+                    </>
                 )}
             </div>
 

@@ -46,7 +46,7 @@ export default function MyPage() {
 
     return (
         <div className='container mx-auto p-4'>
-            <div className='flex items-center mb-6 p-4 bg-gray-100 rounded-lg shadow-sm'>
+             <div className='flex items-center mb-6 p-4 bg-base-200 rounded-lg shadow-sm'>  
                 {currentUser.photoURL && (
                     <img
                         src={currentUser.photoURL}
@@ -55,19 +55,19 @@ export default function MyPage() {
                     />
                 )}
                 <div>
-                    <div className="flex gap-2 items-center justify-between">
-                            <h1 className='text-2xl font-bold text-gray-800'>
-                        {currentUser.displayName}
-                    </h1>
-                        <button className='btn btn-xs text-xs btn-accent' onClick={handleLogout}>
-                    로그아웃
-                </button>
+                    <div className='flex gap-2 items-center justify-between'>
+                        <h1 className='text-2xl font-bold text-gray-800'>
+                            {currentUser.displayName}
+                        </h1>
+                        <button
+                            className='btn btn-xs text-xs btn-accent'
+                            onClick={handleLogout}>
+                            로그아웃
+                        </button>
                     </div>
-                
+
                     <p className='text-gray-600'>{currentUser.email}</p>
                 </div>
-
-                
             </div>
 
             <div className='tabs tabs-boxed mb-6'>

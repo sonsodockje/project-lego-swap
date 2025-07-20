@@ -56,9 +56,7 @@ export default function DmListItem({ chatRoom, currentUser }) {
                     </p>
                     {chatRoom.lastTimestamp && (
                         <p className='text-xs text-gray-400 mt-2 self-start'>
-                            {new Date(
-                                chatRoom.lastTimestamp,
-                            ).toLocaleString()}
+                            {new Date(chatRoom.lastTimestamp).toLocaleString()}
                         </p>
                     )}
                 </div>

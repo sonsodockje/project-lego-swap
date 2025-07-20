@@ -262,7 +262,7 @@ export default function WriteForm({ currentUser, id, initialData }) {
                             </div>
                         ))
                     ) : (
-                        <div className='w-full h-[200px] mb-4 bg-gray-100 rounded-2xl text-sm text-center flex items-center justify-center'>
+                        <div className='w-full h-[200px] mb-4 bg-base-200 rounded-2xl text-sm text-center flex items-center justify-center'>
                             선택된 이미지가 없습니다.
                         </div>
                     )}
@@ -331,11 +331,10 @@ export default function WriteForm({ currentUser, id, initialData }) {
                         }}
                         // controlled component
                     />
-                    <p className='rounded-sm bg-gray-100 p-2 px-4 ml-1'>원</p>
+                    <p className='rounded-sm bg-base-100 p-2 px-4 ml-1'>원</p>
                 </div>
                 <p className='validator-hint '>상품 가격을 입력해주세요.</p>
                 <section>
-
                     <p>판매팀</p>
                     <FormFilter type='sell' setFormData={setFormData} />
                     <p>희망팀</p>

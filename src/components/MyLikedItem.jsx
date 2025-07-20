@@ -54,7 +54,9 @@ export default function MyLikedItem({ product, currentUser }) {
                     className='w-24 h-24 object-cover rounded-md mt-2'
                 />
             )}
-            <button     className='p-2 btn btn-primary  mt-2 btn-xs text-xs' onClick={handleUnlike}>
+            <button
+                className='p-2 btn btn-primary  mt-2 btn-xs text-xs'
+                onClick={handleUnlike}>
                 삭제
             </button>
         </Link>

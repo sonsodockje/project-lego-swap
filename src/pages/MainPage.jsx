@@ -60,15 +60,14 @@ export default function MainPage() {
         <>
             <ItemFilterHeader handleFilter={handleFilter} />
             <ItemList products={currentItems} />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
-            <Pagination
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-            />
-        </div>
-            
+            <div className='sticky bottom-0 left-1/2 '>
+                <Pagination
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                />
+            </div>
         </>
     );
 }

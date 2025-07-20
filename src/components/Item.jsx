@@ -59,50 +59,40 @@ const Item = ({ item }) => {
         likedProducts &&
         likedProducts.some((product) => product.id === item.id);
 
-    const handleLikeBtn = useCallback(
-        async () => {
-            
-            
-            
+    const handleLikeBtn = useCallback(async () => {
+        if (!currentUser) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
 
-            if (!currentUser) {
-                alert('로그인이 필요합니다.');
-                return;
-            }
+        const previousLikedProducts = queryClient.getQueryData([
+            'likedProducts',
+            currentUser.uid,
+        ]);
 
-            const previousLikedProducts = queryClient.getQueryData([
-                'likedProducts',
-                currentUser.uid,
-            ]);
+        if (isItemLiked) {
+            queryClient.setQueryData(
+                ['likedProducts', currentUser.uid],
+                (old) => old.filter((product) => product.id !== item.id),
+            );
+        } else {
+            queryClient.setQueryData(
+                ['likedProducts', currentUser.uid],
+                (old) => [...(old || []), { id: item.id, likedAt: new Date() }],
+            );
+        }
 
-            if (isItemLiked) {
-                queryClient.setQueryData(
-                    ['likedProducts', currentUser.uid],
-                    (old) => old.filter((product) => product.id !== item.id),
-                );
-            } else {
-                queryClient.setQueryData(
-                    ['likedProducts', currentUser.uid],
-                    (old) => [
-                        ...(old || []),
-                        { id: item.id, likedAt: new Date() },
-                    ],
-                );
-            }
-
-            try {
-                await userLike(item.id, currentUser.uid);
-            } catch (error) {
-                queryClient.setQueryData(
-                    ['likedProducts', currentUser.uid],
-                    previousLikedProducts,
-                );
-                console.error('찜하기/취소 실패:', error);
-                alert('찜하기/취소 중 오류가 발생했습니다.');
-            }
-        },
-        [item.id, currentUser, isItemLiked, queryClient],
-    );
+        try {
+            await userLike(item.id, currentUser.uid);
+        } catch (error) {
+            queryClient.setQueryData(
+                ['likedProducts', currentUser.uid],
+                previousLikedProducts,
+            );
+            console.error('찜하기/취소 실패:', error);
+            alert('찜하기/취소 중 오류가 발생했습니다.');
+        }
+    }, [item.id, currentUser, isItemLiked, queryClient]);
 
     const handleItemClick = () => {
         navigate(`/detail/${item.id}`);
@@ -186,14 +176,15 @@ const Item = ({ item }) => {
 
                     {currentUser && (
                         <button
-                            onClick={(e)=>{
-                                e.stopPropagation()
-                                e.preventDefault()
-                                handleLikeBtn()}}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleLikeBtn();
+                            }}
                             className={`p-2 rounded-full transition-colors duration-200 hover:cursor-pointer ${
                                 isItemLiked
                                     ? 'text-red-500 bg-red-100'
-                                    : 'text-gray-400 hover:bg-gray-100'
+                                    : 'text-gray-400 hover:bg-base-200'
                             }`}
                             aria-label='찜하기'>
                             <HeartIcon className='w-5 h-5' />

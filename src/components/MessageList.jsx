@@ -16,7 +16,7 @@ export default function MessageList({
     };
 
     return (
-        <div className='flex-1 overflow-y-auto p-4 bg-base-100'>
+        <div className='flex-1 overflow-y-auto p-4 '>
             {messages.map((msg) => (
                 <div
                     key={msg.id}
