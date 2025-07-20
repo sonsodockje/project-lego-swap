@@ -7,9 +7,10 @@ Lego Market은 레고 애호가들을 위한 전용 중고 거래 커뮤니티 �
 **[https://lego-f1-3d70e.web.app/](https://lego-f1-3d70e.web.app/)**
 
 ## 미리보기
-<img width="748" height="874" alt="image" src="https://github.com/user-attachments/assets/bac79b3e-8626-4616-91c9-c93c678c7a78" />
-<img width="748" height="932" alt="image" src="https://github.com/user-attachments/assets/df2eaa00-72fd-4117-be13-dde28446b87f" />
-<img width="748" height="920" alt="image" src="https://github.com/user-attachments/assets/239cb7ac-5adb-4813-8a93-8af616087f25" />
+<img width="370" height="440" alt="image" src="https://github.com/user-attachments/assets/bac79b3e-8626-4616-91c9-c93c678c7a78" />
+<img width="370" height="440" alt="image" src="https://github.com/user-attachments/assets/df2eaa00-72fd-4117-be13-dde28446b87f" />
+<img width="370" height="440" alt="image" src="https://github.com/user-attachments/assets/28c956bf-96a9-45d9-8659-087a4d75d498" />
+<img width="370" height="440" alt="image" src="https://github.com/user-attachments/assets/239cb7ac-5adb-4813-8a93-8af616087f25" />
 
 
 ## ✨ 주요 기능 상세
@@ -110,6 +111,7 @@ Lego Market은 레고 애호가들을 위한 전용 중고 거래 커뮤니티 �
 
 ## 📝 향후 업데이트 계획
 
-- **[ ] 알림 기능**: 다른 사용자가 내 게시물에 찜을 누르거나 DM을 보냈을 때 실시간 알림을 제공합니다.
-- **[ ] 검색 및 필터링 강화**: 카테고리, 가격 범위 등 다양한 조건으로 상품을 검색하고 필터링하는 기능을 추가합니다.
-- **[ ] 사용자 평가 시스템**: 거래 완료 후 서로에 대한 후기를 남길 수 있는 기능을 도입합니다.
+- [ ] 알림 기능: 다른 사용자가 내 게시물에 찜을 누르거나 DM을 보냈을 때 실시간 알림을 제공합니다.
+- [ ] 검색 및 필터링 강화: 카테고리, 가격 범위 등 다양한 조건으로 상품을 검색하고 필터링하는 기능을 추가합니다.
+- [ ] 사용자 평가 시스템: 거래 완료 후 서로에 대한 후기를 남길 수 있는 기능을 도입합니다.
+- [ ] 게시물 댓글 기능: 각 게시물에 댓글을 작성하여 공개적으로 정보를 나눌 수 있는 기능을 도입합니다.
