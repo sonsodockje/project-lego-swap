@@ -6,6 +6,12 @@ Lego Market은 레고 애호가들을 위한 전용 중고 거래 커뮤니티 �
 
 **[https://lego-f1-3d70e.web.app/](https://lego-f1-3d70e.web.app/)**
 
+## 미리보기
+<img width="748" height="874" alt="image" src="https://github.com/user-attachments/assets/bac79b3e-8626-4616-91c9-c93c678c7a78" />
+<img width="748" height="932" alt="image" src="https://github.com/user-attachments/assets/df2eaa00-72fd-4117-be13-dde28446b87f" />
+<img width="748" height="920" alt="image" src="https://github.com/user-attachments/assets/239cb7ac-5adb-4813-8a93-8af616087f25" />
+
+
 ## ✨ 주요 기능 상세
 
 - **🔐 사용자 인증**
