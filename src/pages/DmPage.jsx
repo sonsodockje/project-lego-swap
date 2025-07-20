@@ -39,7 +39,7 @@ export default function DmPage() {
     }
 
     return (
-        <div className='flex flex-col max-w-lg mx-auto h-[calc(100lvh-110px)] overflow-none'>
+        <div className='flex flex-col max-w-lg mx-auto h-[calc(100lvh-110px)] overflow-none overflow-hidden'>
             <div className='flex justify-center pb-2 items-center w-full'>
                 <div className='avatar items-center ml-4'>
                     <div className='w-5 h-5 rounded-full '>
