@@ -68,8 +68,8 @@ Lego Market은 레고 애호가들을 위한 전용 중고 거래 커뮤니티 �
 1.  **저장소 클론 및 종속성 설치**
 
     ```bash
-    git clone https://github.com/your-username/zb-pj-01.git
-    cd zb-pj-01
+    git clone https://github.com/your-username/project-lego-swap.git
+    cd project-lego-swap
     pnpm install
     ```
 
