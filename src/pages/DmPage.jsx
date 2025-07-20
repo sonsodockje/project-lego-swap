@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
 import MessageList from '../components/MessageList';
 import MessageInput from '../components/MessageInput';
@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 export default function DmPage() {
     const { chatRoomId } = useParams();
-    const navigate = useNavigate();
+
     const {
         chatRoomName,
         membersInfo,

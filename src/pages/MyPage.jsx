@@ -5,7 +5,6 @@ import { readUserLike, fetchUserPosts } from '../api/firebaseStore';
 import { useQuery } from '@tanstack/react-query';
 import MyPostItem from '../components/MyPostItem';
 import MyLikedItem from '../components/MyLikedItem';
-import { Link } from 'react-router-dom';
 
 export default function MyPage() {
     const { currentUser, isLogin, handleLogout } = useAuth();
