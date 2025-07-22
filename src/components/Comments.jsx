@@ -110,7 +110,7 @@ const Comments = ({ id }) => {
             {comments.length > 0 ? (
                 <ul className='w-full flex flex-col gap-6'>
                     {comments.map((comment) => (
-                        <li key={comment.id} className='relative flex flex-col gap-3 p-4 bg-white rounded-lg shadow-sm border border-gray-100'>
+                        <li key={comment.id} className='relative flex flex-col gap-3 p-4 bg-base-100 rounded-lg shadow-sm border border-gray-100'>
                             {/* 댓글 작성자 정보 */}
                             <div className='flex items-center gap-3'>
                                 <img
@@ -119,13 +119,13 @@ const Comments = ({ id }) => {
                                     alt={comment.author?.displayName || '사용자'}
                                 />
                                 <div className='flex flex-col'>
-                                    <p className='font-medium text-gray-800'>{comment.author?.displayName || '익명 사용자'}</p>
-                                    <p className='text-xs text-gray-500'>{comment.date}</p>
+                                    <p className='font-medium text-base-content'>{comment.author?.displayName || '익명 사용자'}</p>
+                                    <p className='text-xs text-base-content'>{comment.date}</p>
                                 </div>
                             </div>
                             
                             {/* 댓글 내용 */}
-                            <p className='text-gray-700 leading-relaxed'>{comment.content}</p>
+                            <p className='text-base-content leading-relaxed'>{comment.content}</p>
 
                             {/* 액션 버튼 (대댓, 삭제) */}
                             <div className='flex justify-end gap-2 mt-2'>
@@ -168,7 +168,7 @@ const Comments = ({ id }) => {
                             {comment.recomments && comment.recomments.length > 0 && (
                                 <ul className='ml-4 mt-4 flex flex-col gap-4 pl-2'> 
                                     {comment.recomments.map((recomment) => (
-                                        <li key={recomment.id} className='relative flex flex-col gap-2 p-3 bg-gray-50 rounded-lg shadow-xs'>
+                                        <li key={recomment.id} className='relative flex flex-col gap-2 p-3 bg-base-200 rounded-lg shadow-xs'>
                                             {/* 대댓글 작성자 정보 */}
                                             <div className='flex items-center gap-2'>
                                                 <img
@@ -177,12 +177,12 @@ const Comments = ({ id }) => {
                                                     alt={recomment.author?.displayName || '사용자'}
                                                 />
                                                 <div className='flex flex-col'>
-                                                    <p className='font-normal text-gray-700 text-sm'>{recomment.author?.displayName || '익명 사용자'}</p>
-                                                    <p className='text-xs text-gray-400'>{recomment.date}</p>
+                                                    <p className='font-normal text-base-content text-sm'>{recomment.author?.displayName || '익명 사용자'}</p>
+                                                    <p className='text-xs text-base-content'>{recomment.date}</p>
                                                 </div>
                                             </div>
                                             {/* 대댓글 내용 */}
-                                            <p className='text-gray-600 text-sm'>{recomment.content}</p>
+                                            <p className='text-base-content text-sm'>{recomment.content}</p>
 
                                             {/* 대댓글 삭제 버튼 */}
                                             {currentUser && recomment.author?.uid === currentUser.uid && (

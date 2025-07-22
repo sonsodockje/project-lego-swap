@@ -8,7 +8,7 @@ import { productsFetch } from '../api/firebaseStore';
 export default function MainPage() {
     const [filter, setFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 4;
+    const itemsPerPage = 6;
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['products'],
