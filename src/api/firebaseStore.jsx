@@ -14,7 +14,7 @@ import {
     where, // where 임포트 추가
 } from 'firebase/firestore';
 
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 /**
  * Firestore에 상품 데이터를 업로드
@@ -239,3 +239,43 @@ export const fetchUserPosts = async (userId) => {
         throw new Error('내가 쓴 글을 불러오는 데 오류가 발생했습니다.');
     }
 };
+
+export const commentUpload = async (postId, data, setIsLoading) => {
+    try {
+        const productDocRef = doc(db, 'products', postId)
+        const commentsCollectionRef = collection(productDocRef, 'comments');
+
+        const returnData = await addDoc(commentsCollectionRef, data);
+        console.log('Document comment with ID: ', returnData.id);
+    } catch (e) {
+        console.error('Error adding document: ', e);
+    } finally {
+        setIsLoading(false);
+    }
+};
+
+// export const fetchComment = async (postId) => {
+//     try {
+//         const q = query(
+//             collection(db, 'products'),
+//             where('uid', '==', userId), // uid 필드가 userId와 일치하는 문서 필터링
+//             orderBy('timestamp', 'desc'), // 최신순 정렬
+
+
+            
+//         );
+//         const querySnapshot = await getDocs(q);
+
+//         const userPosts = [];
+//         querySnapshot.forEach((doc) => {
+//             userPosts.push({ id: doc.id, ...doc.data() });
+//         });
+
+//         console.log('User posts:', userPosts);
+//         return userPosts;
+
+//     } catch (error) {
+//         console.error('Error fetching user posts:', error);
+//         throw new Error('내가 쓴 글을 불러오는 데 오류가 발생했습니다.');
+//     }
+// };

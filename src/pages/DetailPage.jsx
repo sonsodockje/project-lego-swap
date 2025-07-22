@@ -7,6 +7,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 
 import Comment from '@/components/Comment';
 import { handleOpenChatRoom } from '@/api/firebaseRealtime';
+import Comments from '@/components/Comments';
 
 export default function DetailPage() {
     const { id } = useParams();
@@ -177,8 +178,8 @@ export default function DetailPage() {
                     </button>
                 </div>
             )}
-
-            <Comment />
+<Comments id={id}/>
+            <Comment id={id}/>
         </div>
     );
 }
