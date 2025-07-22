@@ -254,6 +254,24 @@ export const commentUpload = async (postId, data, setIsLoading) => {
     }
 };
 
+
+
+    // await reCommentUpload(id, commentId, comment, setIsLoading);
+
+export const reCommentUpload = async (postId, commentId,data, setIsLoading) => {
+    console.log("정보", postId, commentId,data, setIsLoading)
+    try {
+        const commentsDocRef = doc(db, 'products', postId,'comments', commentId)
+        const reCommentCollctionRef = collection(commentsDocRef, 'recomments');
+        const returnData = await addDoc(reCommentCollctionRef, data);
+        console.log('Document comment with ID: ', returnData.id);
+    } catch (e) {
+        console.error('Error adding document: ', e);
+    } finally {
+        setIsLoading(false);
+    }
+};
+
 // export const fetchComment = async (postId) => {
 //     try {
 //         const q = query(
