@@ -12,6 +12,7 @@ import {
     deleteDoc,
     updateDoc, // updateDoc 임포트 추가
     where, // where 임포트 추가
+    FieldValue as FirestoreFieldValue, // FieldValue 임포트 추가 및 이름 변경
 } from 'firebase/firestore';
 
 export const db = getFirestore(app);
@@ -138,17 +139,36 @@ export const productUpdate = async (id, data, setIsLoading, navigate) => {
  */
 export const userLike = async (productId, currentUserId) => {
     try {
-        const likeDocRef = doc(db, 'user', currentUserId, 'like', productId);
-        const docSnap = await getDoc(likeDocRef);
+        // product내 누가 좋아요 했는지
+        const likeDocRef = doc(
+            db,
+            'products',
+            productId,
+            'liked',
+            currentUserId,
+        );
+
+        // 유저 데이터 좋아요 용
+        const userLikeDocRef = doc(
+            db,
+            'user',
+            currentUserId,
+            'like',
+            productId,
+        );
+        const docSnap = await getDoc(userLikeDocRef);
 
         if (docSnap.exists()) {
-            // 이미 찜한 경우: 찜 취소 (문서 삭제)
             await deleteDoc(likeDocRef);
+            // 이미 찜한 경우: 찜 취소 (문서 삭제)
+            await deleteDoc(userLikeDocRef);
             console.log('Document successfully deleted!');
             alert('찜 취소!');
         } else {
+            await setDoc(likeDocRef, { userid: new Date() });
+
             // 찜하지 않은 경우: 찜하기 (문서 추가)
-            await setDoc(likeDocRef, {
+            await setDoc(userLikeDocRef, {
                 likedAt: new Date(),
             });
             console.log('Document set with ID: ', productId);
@@ -242,9 +262,8 @@ export const fetchUserPosts = async (userId) => {
 
 export const commentUpload = async (postId, data, setIsLoading) => {
     try {
-        const productDocRef = doc(db, 'products', postId)
+        const productDocRef = doc(db, 'products', postId);
         const commentsCollectionRef = collection(productDocRef, 'comments');
-
         const returnData = await addDoc(commentsCollectionRef, data);
         console.log('Document comment with ID: ', returnData.id);
     } catch (e) {
@@ -254,14 +273,21 @@ export const commentUpload = async (postId, data, setIsLoading) => {
     }
 };
 
-
-
-    // await reCommentUpload(id, commentId, comment, setIsLoading);
-
-export const reCommentUpload = async (postId, commentId,data, setIsLoading) => {
-    console.log("정보", postId, commentId,data, setIsLoading)
+export const reCommentUpload = async (
+    postId,
+    commentId,
+    data,
+    setIsLoading,
+) => {
+    console.log('정보', postId, commentId, data, setIsLoading);
     try {
-        const commentsDocRef = doc(db, 'products', postId,'comments', commentId)
+        const commentsDocRef = doc(
+            db,
+            'products',
+            postId,
+            'comments',
+            commentId,
+        );
         const reCommentCollctionRef = collection(commentsDocRef, 'recomments');
         const returnData = await addDoc(reCommentCollctionRef, data);
         console.log('Document comment with ID: ', returnData.id);
@@ -272,28 +298,54 @@ export const reCommentUpload = async (postId, commentId,data, setIsLoading) => {
     }
 };
 
-// export const fetchComment = async (postId) => {
-//     try {
-//         const q = query(
-//             collection(db, 'products'),
-//             where('uid', '==', userId), // uid 필드가 userId와 일치하는 문서 필터링
-//             orderBy('timestamp', 'desc'), // 최신순 정렬
+/**
+ * 특정 상품 문서의 comments 서브컬렉션 문서 수를 가져옴
+ * @param {string} productId - 상품의 ID
+ * @returns {Promise<number>} - comments 서브컬렉션의 문서 수를 반환하는 Promise 객체
+ */
+
+export const getCommentsCount = async (productId) => {
+    try {
+        const commentsCollectionRef = collection(
+            db,
+            'products',
+            productId,
+            'comments',
+        );
+        const commentsSnapshot = await getDocs(commentsCollectionRef);
+        let totalCount = commentsSnapshot.size;
+
+        for (const commentDoc of commentsSnapshot.docs) {
+            const recommentsCollectionRef = collection(
+                commentDoc.ref,
+                'recomments',
+            );
+            const recommentsSnapshot = await getDocs(recommentsCollectionRef);
+            totalCount += recommentsSnapshot.size;
+        }
+
+        return totalCount;
+    } catch (error) {
+        console.error('Error getting comments and recomments count:', error);
+        throw new Error('댓글 및 대댓글 수를 가져오는 데 오류가 발생했습니다.');
+    }
+};
+
+export const getLikedCount = async (productId) => {
+    try {
+        const LikesCollectionRef = collection(
+            db,
+            'products',
+            productId,
+            'liked',
+        );
+        const likedSnapshot = await getDocs(LikesCollectionRef);
+        let totalCount = likedSnapshot.size;
 
 
-            
-//         );
-//         const querySnapshot = await getDocs(q);
-
-//         const userPosts = [];
-//         querySnapshot.forEach((doc) => {
-//             userPosts.push({ id: doc.id, ...doc.data() });
-//         });
-
-//         console.log('User posts:', userPosts);
-//         return userPosts;
-
-//     } catch (error) {
-//         console.error('Error fetching user posts:', error);
-//         throw new Error('내가 쓴 글을 불러오는 데 오류가 발생했습니다.');
-//     }
-// };
+        return totalCount;
+    } catch (error) {
+        console.error('Error getting comments and recomments count:', error);
+        throw new Error('종아요 수를 가져오는 데 오류가 발생했습니다.');
+    }
+};

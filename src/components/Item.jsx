@@ -1,9 +1,12 @@
 import React, { memo, useCallback } from 'react';
-import { userLike } from '../api/firebaseStore';
+import { userLike, getCommentsCount, getLikedCount } from '../api/firebaseStore';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../api/firebaseAuth';
 import { readUserLike } from '../api/firebaseStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+
+
 
 // --- SVG Icons ---
 const HeartIcon = ({ className, ...props }) => (
@@ -19,7 +22,7 @@ const HeartIcon = ({ className, ...props }) => (
 
 const CommentIcon = ({ className, ...props }) => (
     <svg
-        xmlns='http://www.w3.org/2000/svg'
+        xmlns='http://www.w3.org/0000/svg'
         className={className}
         fill='none'
         viewBox='0 0 24 24'
@@ -43,6 +46,8 @@ const truncateTitle = (title) => {
 
 const Item = ({ item }) => {
     const { currentUser } = useAuth();
+    // const { count } = useCommentCountContext();
+
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -52,6 +57,22 @@ const Item = ({ item }) => {
         enabled: !!currentUser?.uid,
         staleTime: 1000 * 60 * 5,
         cacheTime: 1000 * 60 * 10,
+    });
+
+    const { data: commentCount, isLoading: isCommentCountLoading } = useQuery({
+        queryKey: ['commentCount', item.id],
+        queryFn: () => getCommentsCount(item.id),
+        enabled: !!item.id,
+        staleTime: 1000 * 60, // 1 minute
+        cacheTime: 1000 * 60 * 5, // 5 minutes
+    });
+
+    const { data: likedCount, isLoading: isLikedCountLoading } = useQuery({
+        queryKey: ['likedCount', item.id],
+        queryFn: () => getLikedCount(item.id),
+        enabled: !!item.id,
+        staleTime: 1000 * 60, // 1 minute
+        cacheTime: 1000 * 60 * 5, // 5 minutes
     });
 
     const isItemLiked =
@@ -84,6 +105,7 @@ const Item = ({ item }) => {
 
         try {
             await userLike(item.id, currentUser.uid);
+            queryClient.invalidateQueries(['likedCount', item.id])
         } catch (error) {
             queryClient.setQueryData(
                 ['likedProducts', currentUser.uid],
@@ -159,18 +181,18 @@ const Item = ({ item }) => {
                 {/* Stats and Like Button */}
                 <div className='mt-2 flex justify-between items-center'>
                     <div className='flex items-center gap-3 text-gray-500'>
-                        {/* <span className='flex items-center gap-1'>
+                        <span className='flex items-center gap-1'>
                             <HeartIcon className='w-4 h-4' />
                             <span className='text-xs'>
-                                {item.likeCount || 0}
+                                {isLikedCountLoading ? '...' : likedCount || 0}
                             </span>
                         </span>
                         <span className='flex items-center gap-1'>
                             <CommentIcon className='w-4 h-4' />
                             <span className='text-xs'>
-                                {item.commentCount || 0}
+                                {isCommentCountLoading ? '...' : commentCount || 0}
                             </span>
-                        </span> */}
+                        </span>
                     </div>
 
                     {currentUser && (

@@ -1,5 +1,6 @@
 import { useAuth } from '@/api/firebaseAuth';
 import { commentUpload, reCommentUpload } from '@/api/firebaseStore';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -8,6 +9,7 @@ const Comment = ({ isRe, setIsRe, commentId }) => {
     const { isLogin, currentUser } = useAuth();
     const [commentData, setCommentData] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const qC = useQueryClient()
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,6 +37,7 @@ const Comment = ({ isRe, setIsRe, commentId }) => {
                 await reCommentUpload(id, commentId, comment, setIsLoading);
                 setCommentData(''); // 입력 필드 초기화
                 setIsRe(false);
+                qC.invalidateQueries(['commentCount', id])
             } catch (error) {
                 console.error('대댓글 업로드 오류:', error);
                 alert('대댓글 작성에 실패했습니다.');
@@ -43,6 +46,7 @@ const Comment = ({ isRe, setIsRe, commentId }) => {
             try {
                 await commentUpload(id, comment, setIsLoading);
                 setCommentData(''); // 입력 필드 초기화
+                qC.invalidateQueries(['commentCount', id])
             } catch (error) {
                 console.error('댓글 업로드 오류:', error);
                 alert('댓글 작성에 실패했습니다.');

@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './api/firebaseAuth';
 import { ThemeProvider } from './hooks/useTheme';
+import { CommentCountContextProvider } from './hooks/useCommentSuContext';
 
 const queryClient = new QueryClient();
 
@@ -14,7 +15,9 @@ function App() {
             <ThemeProvider defaultTheme='bumblebee'>
                 <QueryClientProvider client={queryClient}>
                     <AuthProvider>
-                        <Router />
+                        <CommentCountContextProvider>
+                            <Router />
+                        </CommentCountContextProvider>
                     </AuthProvider>
                 </QueryClientProvider>
             </ThemeProvider>
