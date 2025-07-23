@@ -3,16 +3,16 @@ import {
     getFirestore,
     collection,
     addDoc,
+    setDoc,
     getDocs,
     doc,
     getDoc,
-    documentId,
     query,
     orderBy,
     deleteDoc,
-    updateDoc,
-    where,
-    writeBatch,
+    updateDoc, // updateDoc 임포트 추가
+    where, // where 임포트 추가
+    FieldValue as FirestoreFieldValue, // FieldValue 임포트 추가 및 이름 변경
 } from 'firebase/firestore';
 
 export const db = getFirestore(app);
@@ -20,25 +20,29 @@ export const db = getFirestore(app);
 /**
  * Firestore에 상품 데이터를 업로드
  * @param {object} data - 업로드할 상품 데이터
- * @returns {Promise<string>} - 생성된 문서의 ID를 반환하는 Promise 객체
- * @throws {Error} - 문서 추가 중 오류 발생 시
+ * @param {Function} setIsLoading - 로딩 상태 변경 함수
+ * @param {Function} navigate - 업로드 성공 후 페이지 이동을 처리하는 함수
  */
-export const productUpload = async (data) => {
+export const productUpload = async (data, setIsLoading, navigate) => {
     try {
         const docRef = await addDoc(collection(db, 'products'), data);
         console.log('Document written with ID: ', docRef.id);
-        return docRef.id;
+
+        if (navigate) {
+            // navigate 함수가 제대로 전달되었는지 확인
+            navigate('/'); // 업로드 성공 후 홈으로 이동
+        }
     } catch (e) {
         console.error('Error adding document: ', e);
-        throw new Error('상품 업로드 중 오류가 발생했습니다.');
+    } finally {
+        setIsLoading(false);
     }
 };
 
 /**
  * Firestore에서 모든 상품 목록을 가져옴 (클라이언트 측 페이지네이션을 위해)
- * @description 데이터가 많아질 경우, 성능 저하를 방지하기 위해 서버 측 페이지네이션 (limit, startAfter) 사용을 고려해야 합니다.
  * @returns {Promise<{products: Array<object>, totalCount: number}>} - 상품 목록과 총 개수를 포함하는 객체를 반환하는 Promise 객체
- * @throws {Error} - 데이터 조회 중 오류 발생 시
+ * @throws {Error}
  */
 export const productsFetch = async () => {
     try {
@@ -67,7 +71,7 @@ export const productsFetch = async () => {
         return { products, totalCount };
     } catch (error) {
         console.error('컬렉션 문서를 읽는 중 오류 발생:', error);
-        throw new Error('상품 목록을 불러오는 중 오류가 발생했습니다.');
+        throw error; // 오류를 호출자에게 다시 던집니다。
     }
 };
 
@@ -104,36 +108,27 @@ export const deleteProductById = async (id) => {
     }
 };
 
-export const deleteCommentById = async (productId, commentId, reCommentId) => {
-    try {
-        if(!reCommentId) {
-            await deleteDoc(doc(db, 'products', productId, 'comments', commentId));
-            console.log('successfully deleted!');
-        } else {
-            await deleteDoc(doc(db, 'products', productId, 'comments', commentId, 'recomments', reCommentId));
-            console.log('successfully deleted!');
-        }
-    } catch (error) {
-        console.error(error);
-        throw new Error('댓글 삭제중 오류가 발생했습니다.');
-    }
-};
-
 /**
  * Firestore에서 특정 상품의 데이터를 업데이트
  * @param {string} id - 업데이트할 상품의 ID
- * @param {object} data - 업데이트할 상품 데이터.
- * @returns {Promise<void>}
- * @throws {Error} - 업데이트 중 오류 발생 시
+ * @param {object} data - 업데이트할 상품 데이터
+ * @param {Function} setIsLoading - 로딩 상태 설정 함수
+ * @param {Function} navigate - 페이지 이동 함수
  */
-export const productUpdate = async (id, data) => {
+export const productUpdate = async (id, data, setIsLoading, navigate) => {
     try {
         const docRef = doc(db, 'products', id);
         await updateDoc(docRef, data);
         console.log('Document with ID ', id, ' successfully updated!');
+
+        if (navigate) {
+            navigate('/detail/' + id); // 업데이트 성공 후 상세 페이지로 이동
+        }
     } catch (e) {
         console.error('Error updating document: ', e);
-        throw new Error('상품 업데이트 중 오류가 발생했습니다.');
+        alert('상품 업데이트 중 오류가 발생했습니다.');
+    } finally {
+        setIsLoading(false);
     }
 };
 
@@ -141,13 +136,19 @@ export const productUpdate = async (id, data) => {
  * 사용자가 특정 상품에 '좋아요'를 누를 때 Firestore에 데이터를 저장
  * @param {string} productId - '좋아요'를 누른 상품의 ID
  * @param {string} currentUserId - 현재 로그인한 사용자의 ID
- * @returns {Promise<boolean>} - '좋아요'가 추가되면 true, 취소되면 false를 반환
- * @throws {Error} - 작업 중 오류 발생 시
  */
 export const userLike = async (productId, currentUserId) => {
     try {
-        const batch = writeBatch(db);
+        // product내 누가 좋아요 했는지
+        const likeDocRef = doc(
+            db,
+            'products',
+            productId,
+            'liked',
+            currentUserId,
+        );
 
+        // 유저 데이터 좋아요 용
         const userLikeDocRef = doc(
             db,
             'user',
@@ -155,34 +156,32 @@ export const userLike = async (productId, currentUserId) => {
             'like',
             productId,
         );
-
         const docSnap = await getDoc(userLikeDocRef);
 
         if (docSnap.exists()) {
-            // 찜 취소
-            batch.delete(userLikeDocRef);
+            await deleteDoc(likeDocRef);
+            // 이미 찜한 경우: 찜 취소 (문서 삭제)
+            await deleteDoc(userLikeDocRef);
             console.log('Document successfully deleted!');
-            await batch.commit();
-            return false;
+            alert('찜 취소!');
         } else {
-            // 찜하기
-            batch.set(userLikeDocRef, {
+            await setDoc(likeDocRef, { userid: new Date() });
+
+            // 찜하지 않은 경우: 찜하기 (문서 추가)
+            await setDoc(userLikeDocRef, {
                 likedAt: new Date(),
             });
-            await batch.commit();
             console.log('Document set with ID: ', productId);
-            return true;
+            alert('찜 완료!');
         }
     } catch (e) {
         console.error('Error updating document: ', e);
-        throw new Error('찜 처리 중 오류가 발생했습니다.');
+        alert('찜 오류...~');
     }
 };
 
 /**
  * Firestore에서 사용자가 '좋아요'를 누른 상품 목록을 가져옴 (상세 정보 포함)
- * @description Firestore 'in' 쿼리는 한 번에 30개의 ID만 조회할 수 있습니다.
- * 만약 사용자가 30개 이상의 상품에 '좋아요'를 누를 경우, ID 목록을 30개씩 나누어 여러 번 쿼리해야 합니다.
  * @param {string} currentUserId - 현재 로그인한 사용자의 ID
  * @returns {Promise<Array<object>>} - '좋아요'를 누른 상품 목록을 포함하는 Promise 객체를 반환
  * @throws {Error}
@@ -192,47 +191,41 @@ export const readUserLike = async (currentUserId) => {
         const likeCollectionRef = collection(db, 'user', currentUserId, 'like');
         const querySnapshot = await getDocs(likeCollectionRef);
 
-        if (querySnapshot.empty) {
-            return [];
-        }
-
-        const likedItems = {};
+        const likedProductIds = [];
         querySnapshot.forEach((doc) => {
-            likedItems[doc.id] = doc.data().likedAt;
-        });
-
-        const productIds = Object.keys(likedItems);
-        const productChunks = [];
-        for (let i = 0; i < productIds.length; i += 30) {
-            productChunks.push(productIds.slice(i, i + 30));
-        }
-
-        const productPromises = productChunks.map((chunk) => {
-            const productsQuery = query(
-                collection(db, 'products'),
-                where(documentId(), 'in', chunk),
-            );
-            return getDocs(productsQuery);
-        });
-
-        const productSnapshots = await Promise.all(productPromises);
-
-        const likedProductsWithDetails = [];
-        productSnapshots.forEach((snapshot) => {
-            snapshot.forEach((doc) => {
-                likedProductsWithDetails.push({
-                    id: doc.id,
-                    ...doc.data(),
-                    likedAt: likedItems[doc.id],
-                });
+            likedProductIds.push({
+                productId: doc.id,
+                likedAt: doc.data().likedAt,
             });
         });
 
-        const sortedProducts = likedProductsWithDetails
+        // 각 찜한 상품의 상세 정보를 가져옵니다.
+        const likedProductsWithDetails = await Promise.all(
+            likedProductIds.map(async (likedItem) => {
+                const productDetail = await productFetchById(
+                    likedItem.productId,
+                );
+                return productDetail
+                    ? { ...productDetail, likedAt: likedItem.likedAt }
+                    : null;
+            }),
+        );
+
+        // null 값 필터링 및 likedAt 기준으로 최신순 정렬
+        const filteredAndSortedProducts = likedProductsWithDetails
+            .filter((product) => product !== null)
             .sort((a, b) => b.likedAt.seconds - a.likedAt.seconds); // likedAt이 Timestamp 객체라고 가정
 
-        console.log('Liked products data with details:', sortedProducts);
-        return sortedProducts;
+        if (filteredAndSortedProducts.length > 0) {
+            console.log(
+                'Liked products data with details:',
+                filteredAndSortedProducts,
+            );
+            return filteredAndSortedProducts;
+        } else {
+            console.log('No liked products found!');
+            return [];
+        }
     } catch (e) {
         console.error('Error reading liked products: ', e);
         throw new Error('찜 목록을 불러오는 데 오류가 발생했습니다.');
@@ -267,44 +260,57 @@ export const fetchUserPosts = async (userId) => {
     }
 };
 
-/**
- * Firestore에 댓글 데이터를 업로드
- * @param {string} postId - 상품 ID
- * @param {object} data - 업로드할 댓글 데이터
- * @returns {Promise<string>} - 생성된 댓글 문서의 ID
- * @throws {Error} - 댓글 업로드 중 오류 발생 시
- */
-export const commentUpload = async (postId, data) => {
+
+export const deleteCommentById = async (productId, commentId, reCommentId) => {
+    try {
+        if(!reCommentId) {
+            await deleteDoc(doc(db, 'products', productId, 'comments', commentId));
+            console.log('successfully deleted!');
+        } else {
+            await deleteDoc(doc(db, 'products', productId, 'comments', commentId, 'recomments', reCommentId));
+            console.log('successfully deleted!');
+        }
+    } catch (error) {
+        console.error(error);
+        throw new Error('댓글 삭제중 오류가 발생했습니다.');
+    }
+};
+
+export const commentUpload = async (postId, data, setIsLoading) => {
     try {
         const productDocRef = doc(db, 'products', postId);
         const commentsCollectionRef = collection(productDocRef, 'comments');
         const returnData = await addDoc(commentsCollectionRef, data);
         console.log('Document comment with ID: ', returnData.id);
-        return returnData.id;
     } catch (e) {
         console.error('Error adding document: ', e);
-        throw new Error('댓글 작성 중 오류가 발생했습니다.');
+    } finally {
+        setIsLoading(false);
     }
 };
 
-/**
- * Firestore에 대댓글 데이터를 업로드
- * @param {string} postId - 상품 ID
- * @param {string} commentId - 부모 댓글 ID
- * @param {object} data - 업로드할 대댓글 데이터
- * @returns {Promise<string>} - 생성된 대댓글 문서의 ID
- * @throws {Error} - 대댓글 업로드 중 오류 발생 시
- */
-export const reCommentUpload = async (postId, commentId, data) => {
+export const reCommentUpload = async (
+    postId,
+    commentId,
+    data,
+    setIsLoading,
+) => {
+    console.log('정보', postId, commentId, data, setIsLoading);
     try {
-        const commentsDocRef = doc(db, 'products', postId, 'comments', commentId);
+        const commentsDocRef = doc(
+            db,
+            'products',
+            postId,
+            'comments',
+            commentId,
+        );
         const reCommentCollctionRef = collection(commentsDocRef, 'recomments');
         const returnData = await addDoc(reCommentCollctionRef, data);
         console.log('Document comment with ID: ', returnData.id);
-        return returnData.id;
     } catch (e) {
         console.error('Error adding document: ', e);
-        throw new Error('대댓글 작성 중 오류가 발생했습니다.');
+    } finally {
+        setIsLoading(false);
     }
 };
 
@@ -312,7 +318,6 @@ export const reCommentUpload = async (postId, commentId, data) => {
  * 특정 상품 문서의 comments 서브컬렉션 문서 수를 가져옴
  * @param {string} productId - 상품의 ID
  * @returns {Promise<number>} - comments 서브컬렉션의 문서 수를 반환하는 Promise 객체
- * @description 댓글과 대댓글이 많아질 경우, 모든 문서를 읽어오므로 비용 및 성능에 비효율적일 수 있습니다. '상품' 문서에 댓글 카운트 필드를 두고 트랜잭션이나 Cloud Function으로 관리하는 것을 고려해볼 수 있습니다.
  */
 
 export const getCommentsCount = async (productId) => {
@@ -342,11 +347,6 @@ export const getCommentsCount = async (productId) => {
     }
 };
 
-/**
- * 특정 상품의 '좋아요' 수를 가져옴
- * @param {string} productId - 상품의 ID
- * @returns {Promise<number>} - '좋아요' 수를 반환하는 Promise 객체
- */
 export const getLikedCount = async (productId) => {
     try {
         const LikesCollectionRef = collection(
@@ -358,9 +358,10 @@ export const getLikedCount = async (productId) => {
         const likedSnapshot = await getDocs(LikesCollectionRef);
         let totalCount = likedSnapshot.size;
 
+
         return totalCount;
     } catch (error) {
         console.error('Error getting comments and recomments count:', error);
-        throw new Error('종아요 수를 가져오는 데 오류가 발생했습니다.');
+        throw new Error('종아요 가져오는 데 오류가 발생했습니다.');
     }
 };
