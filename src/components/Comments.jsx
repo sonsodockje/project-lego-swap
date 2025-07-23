@@ -6,7 +6,7 @@ import {
     query,
     orderBy,
 } from 'firebase/firestore';
-import { db } from '@/api/firebaseStore';
+import { db, deleteCommentById } from '@/api/firebaseStore';
 import { useAuth } from '@/api/firebaseAuth';
 import Comment from './Comment'; // 대댓글 입력 컴포넌트
 
@@ -142,9 +142,9 @@ const Comments = ({ id }) => {
                                 {currentUser && comment.author?.uid === currentUser.uid && (
                                     <button
                                         onClick={() => {
-                                            console.log('게시물 ID:', id, '댓글 ID:', comment.id);
-                                            // TODO: 삭제 로직 구현 (Firestore에서 댓글 문서 삭제)
-                                            alert('삭제 기능은 아직 구현되지 않았습니다.');
+                                            if (window.confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+                                                deleteCommentById(id, comment.id);
+                                            }
                                         }}
                                         className='btn btn-ghost btn-sm text-red-600 hover:bg-red-50'>
                                         삭제
@@ -189,9 +189,9 @@ const Comments = ({ id }) => {
                                                 <div className='flex justify-end'>
                                                     <button
                                                         onClick={() => {
-                                                            console.log('게시물 ID:', id, '상위 댓글 ID:', comment.id, '대댓글 ID:', recomment.id);
-                                                    
-                                                            alert('대댓글 삭제 기능은 아직 구현되지 않았습니다.');
+                                                            if (window.confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+                                                                deleteCommentById(id, comment.id, recomment.id);
+                                                            }
                                                         }}
                                                         className='btn btn-ghost btn-xs text-red-500 hover:bg-red-50'>
                                                         삭제
